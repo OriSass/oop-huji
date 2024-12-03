@@ -7,16 +7,45 @@ import danogl.gui.*;
 import danogl.gui.rendering.RectangleRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
-import src.gameobjects.Ball;
-import src.gameobjects.Paddle;
+import src.bricker.brick_strategies.BasicCollisionStrategy;
+import src.bricker.brick_strategies.CollisionStrategy;
+import src.bricker.gameobjects.Ball;
+import src.bricker.gameobjects.Brick;
+import src.bricker.gameobjects.Paddle;
 
 import java.awt.*;
 import java.util.Random;
 
 public class BrickerGameManager extends GameManager {
 
-    private static final float BALL_SPEED = 200f;
+    private static final Random random = new Random();
     private static final float EPSILON = 4;
+    private static final float HALF = 0.5F;
+
+    // wall
+    private static final float WALL_DIMENSION_X = 5;
+    private static final float WALL_X_PADDING = 5;
+    private static final float WALL_Y_PADDING = 5;
+
+    // ball
+    private static final float BALL_SPEED = 200f;
+    private static final Vector2 BALL_DIMENSIONS = new Vector2(50, 50);
+
+    // paddle
+    private static final Vector2 PADDLE_DIMENSIONS = new Vector2(100, 15);
+    private static final int PADDLE_PADDING_Y = 30;
+
+    // brick
+    private static final Vector2 BRICK_DIMENSIONS = new Vector2(100f, 15f);
+    private static final Vector2 BRICK_POSITION = new Vector2(150f, 10f);
+
+    // paths
+    private static final String PADDLE_IMAGE_PATH = "src/assets/paddle.png";
+    private static final String BACKGROUND_IMAGE_PATH = "src/assets/DARK_BG2_small.jpeg";
+    private static final String BRICK_IMAGE_PATH = "src/assets/brick.png";
+    private static final String BALL_IMAGE_PATH = "src/assets/ball.png";
+    private static final String BALL_COLLISION_SOUND_PATH = "src/assets/blop.wav";
+
 
     public BrickerGameManager(String bouncingBall, Vector2 vector2) {
         super(bouncingBall, vector2);
@@ -28,50 +57,65 @@ public class BrickerGameManager extends GameManager {
 
         Vector2 windowDimensions = windowController.getWindowDimensions();
 
-        Vector2 wallDimensions = new Vector2(5, windowDimensions.y() * 2);
-        Vector2 leftWallStart = new Vector2(5, 5);
-        Vector2 rightWallStart = new Vector2(windowDimensions.x() - 5, 5);
+        Vector2 wallDimensions = new Vector2(WALL_DIMENSION_X, windowDimensions.y() * 2);
+        Vector2 leftWallStart = new Vector2(WALL_X_PADDING, WALL_Y_PADDING);
+        Vector2 rightWallStart = new Vector2(windowDimensions.x() - WALL_X_PADDING, WALL_Y_PADDING);
+
         createWalls(wallDimensions, leftWallStart, rightWallStart);
+        createPaddle(imageReader, windowDimensions, leftWallStart, rightWallStart, wallDimensions, inputListener);
+        createBall(imageReader, soundReader, windowDimensions);
+        createBrick(imageReader);
+        createBackgroundImage(imageReader, windowDimensions);
+    }
 
-        // create paddles
-        Vector2 paddleDimensions = new Vector2(100, 15);
+    private void createPaddle(ImageReader imageReader, Vector2 windowDimensions, Vector2 leftWallStart, Vector2 rightWallStart, Vector2 wallDimensions, UserInputListener inputListener) {
+        // create paddle
         float leftBoundary = leftWallStart.x() + wallDimensions.x() + EPSILON;
-        float rightBoundary = rightWallStart.x() - paddleDimensions.x() - wallDimensions.x() - EPSILON;
+        float rightBoundary = rightWallStart.x() - PADDLE_DIMENSIONS.x() - wallDimensions.x() - EPSILON;
 
-        Renderable paddleImage = imageReader.readImage("src/assets/paddle.png", true);
-        int[] paddleHeights = {(int) (windowDimensions.y() - 30), 30};
+        Renderable paddleImage = imageReader.readImage(PADDLE_IMAGE_PATH, true);
+        GameObject paddle = new Paddle(Vector2.ZERO, PADDLE_DIMENSIONS,
+                paddleImage, inputListener, leftBoundary, rightBoundary);
+        Vector2 paddlePosition = new Vector2(windowDimensions.x() / 2, (int) (windowDimensions.y() - PADDLE_PADDING_Y));
+        paddle.setCenter(paddlePosition);
+        this.gameObjects().addGameObject(paddle);
 
-        for (int paddleHeight : paddleHeights) {
-            GameObject paddle = new Paddle(Vector2.ZERO, paddleDimensions,
-                    paddleImage, inputListener, leftBoundary, rightBoundary);
-            paddle.setCenter(new Vector2(windowDimensions.x() / 2, paddleHeight));
-            this.gameObjects().addGameObject(paddle);
-        }
+    }
 
-        // create ball
-        Renderable ballImage = imageReader.readImage("src/assets/ball.png", true);
-        Sound collisionSound = soundReader.readSound("src/assets/blop.wav");
-
-
-        GameObject ball = new Ball(Vector2.ZERO, new Vector2(50, 50), ballImage, collisionSound);
-        float ballVelocityX = BALL_SPEED;
-        float ballVelocityY = BALL_SPEED;
-        Random random = new Random();
-        if(random.nextBoolean()){
-            ballVelocityX *= -1;
-        }
-        if(random.nextBoolean()){
-            ballVelocityY *= -1;
-        }
-        ball.setVelocity(new Vector2(ballVelocityX, ballVelocityY));
-
-        ball.setCenter(windowDimensions.mult(0.5F));
-        this.gameObjects().addGameObject(ball);
-
-
-        Renderable bgImageRender = imageReader.readImage("src/assets/DARK_BG2_small.jpeg", true);
+    private void createBackgroundImage(ImageReader imageReader, Vector2 windowDimensions) {
+        Renderable bgImageRender = imageReader.readImage(BACKGROUND_IMAGE_PATH, true);
         GameObject bgImage = new GameObject(Vector2.ZERO, new Vector2(windowDimensions.x(), windowDimensions.y()), bgImageRender);
         this.gameObjects().addGameObject(bgImage, Layer.BACKGROUND);
+    }
+
+    private void createBrick(ImageReader imageReader) {
+        Renderable brickImage = imageReader.readImage(BRICK_IMAGE_PATH, true);
+        CollisionStrategy brickCollisionStrategy = new BasicCollisionStrategy(this);
+        GameObject brick = new Brick(BRICK_POSITION, BRICK_DIMENSIONS,
+                brickImage, brickCollisionStrategy);
+        this.gameObjects().addGameObject(brick);
+
+    }
+
+    private void createBall(ImageReader imageReader, SoundReader soundReader, Vector2 windowDimensions) {
+        // create ball
+        Renderable ballImage = imageReader.readImage(BALL_IMAGE_PATH, true);
+        Sound collisionSound = soundReader.readSound(BALL_COLLISION_SOUND_PATH);
+        GameObject ball = new Ball(Vector2.ZERO, BALL_DIMENSIONS, ballImage, collisionSound);
+
+        float ballVelocityX = getRandomVelocityFlip(BALL_SPEED);
+        float ballVelocityY = getRandomVelocityFlip(BALL_SPEED);
+
+        ball.setVelocity(new Vector2(ballVelocityX, ballVelocityY));
+        ball.setCenter(windowDimensions.mult(HALF));
+        this.gameObjects().addGameObject(ball);
+    }
+
+    private float getRandomVelocityFlip(float velocity) {
+        if(random.nextBoolean()){
+            return velocity * -1;
+        }
+        return velocity;
     }
 
     private void createWalls(Vector2 wallDimensions,Vector2 leftWallStart, Vector2 rightWallStart) {
@@ -86,9 +130,12 @@ public class BrickerGameManager extends GameManager {
         this.gameObjects().addGameObject(rightWall);
     }
 
+    public void removeGameObject(GameObject gameObject) {
+        this.gameObjects().removeGameObject(gameObject);
+    }
+
     public static void main(String[] args) {
         GameManager gm = new BrickerGameManager("Bouncing Ball", new Vector2(500, 700));
         gm.run();
-
     }
 }
