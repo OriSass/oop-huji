@@ -15,6 +15,6 @@ public class BasicCollisionStrategy implements CollisionStrategy {
 
     @Override
     public void onCollision(GameObject gameObject1, GameObject gameObject2) {
-        this.brickerGameManager.removeGameObject(gameObject1, Layer.DEFAULT);
+        this.brickerGameManager.removeGameObject(gameObject1, Layer.STATIC_OBJECTS);
     }
 }
