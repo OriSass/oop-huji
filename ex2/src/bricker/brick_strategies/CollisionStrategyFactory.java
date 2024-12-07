@@ -1,7 +1,7 @@
 package src.bricker.brick_strategies;
 
+import danogl.gui.ImageReader;
 import danogl.gui.UserInputListener;
-import danogl.gui.rendering.ImageRenderable;
 import danogl.util.Vector2;
 import src.bricker.main.BrickerGameManager;
 
@@ -15,10 +15,10 @@ public class CollisionStrategyFactory {
             BrickerGameManager brickerGameManager,
             float leftBoundary, float rightBoundary,
             UserInputListener inputListener,
-            ImageRenderable paddleImage, Vector2 windowDimensions) {
+            ImageReader imageReader, Vector2 windowDimensions) {
 
 //        int randomNumber = random.nextInt(10) + 1;
-        int randomNumber = 2;
+        int randomNumber = 3;
         if (randomNumber > 5) {
             return new BasicCollisionStrategy(brickerGameManager);
         }
@@ -28,9 +28,9 @@ public class CollisionStrategyFactory {
                 return new PuckStrategy(brickerGameManager);
             case SpecialStrategies.EXTRA_PADDLE:
                 return new ExtraPaddleStrategy(brickerGameManager, inputListener,
-                        paddleImage, leftBoundary, rightBoundary, windowDimensions);
+                        imageReader, leftBoundary, rightBoundary, windowDimensions);
             case SpecialStrategies.TURBO:
-                return new TurboStrategy(brickerGameManager);
+                return new TurboStrategy(brickerGameManager, imageReader);
             default:
                 return null;
 //            case SpecialStrategies.EXTRA_LIFE:

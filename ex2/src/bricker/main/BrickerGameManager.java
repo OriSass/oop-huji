@@ -4,7 +4,6 @@ import danogl.GameManager;
 import danogl.GameObject;
 import danogl.collisions.Layer;
 import danogl.gui.*;
-import danogl.gui.rendering.ImageRenderable;
 import danogl.gui.rendering.RectangleRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.gui.rendering.TextRenderable;
@@ -33,7 +32,7 @@ public class BrickerGameManager extends GameManager {
     private final int brickRows;
 
     private Counter brickCount;
-    private GameObject ball;
+    private Ball ball;
     private GameObject paddle;
     private ImageReader imageReader;
     private SoundReader soundReader;
@@ -216,12 +215,11 @@ public class BrickerGameManager extends GameManager {
     private void createBrickRow(ImageReader imageReader, Vector2 startPosition, UserInputListener inputListener,
                                 int numberOfBricks, float leftBoundary, float rightBoundary, Vector2 windowDimensions) {
         Renderable brickImage = imageReader.readImage(BRICK_IMAGE_PATH, true);
-        ImageRenderable paddleImage = imageReader.readImage(PADDLE_IMAGE_PATH, true);
 
         CollisionStrategyFactory factory = new CollisionStrategyFactory();
         CollisionStrategy brickCollisionStrategy = factory.getCollisionStrategy(
                         this, leftBoundary, rightBoundary,
-                        inputListener, paddleImage, windowDimensions);
+                        inputListener, imageReader, windowDimensions);
 
         float brickWidth = (rightBoundary - leftBoundary) / (numberOfBricks);
 

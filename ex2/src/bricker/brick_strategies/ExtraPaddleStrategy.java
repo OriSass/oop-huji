@@ -2,15 +2,15 @@ package src.bricker.brick_strategies;
 
 import danogl.GameObject;
 import danogl.collisions.Layer;
+import danogl.gui.ImageReader;
 import danogl.gui.UserInputListener;
-import danogl.gui.rendering.ImageRenderable;
+import danogl.gui.rendering.Renderable;
 import danogl.util.Counter;
 import danogl.util.Vector2;
 import src.bricker.gameobjects.ExtraPaddle;
 import src.bricker.main.BrickerGameManager;
 
-import static src.bricker.utils.Constants.HALF;
-import static src.bricker.utils.Constants.PADDLE_DIMENSIONS;
+import static src.bricker.utils.Constants.*;
 
 public class ExtraPaddleStrategy implements CollisionStrategy {
 
@@ -19,18 +19,18 @@ public class ExtraPaddleStrategy implements CollisionStrategy {
 
     private final BrickerGameManager brickerGameManager;
     private final UserInputListener inputListener;
-    private final ImageRenderable paddleImage;
+    private final ImageReader imageReader;
     private final float leftBoundary;
     private final float rightBoundary;
     private final Vector2 windowDimensions;
 
     public ExtraPaddleStrategy(BrickerGameManager brickerGameManager,
                                UserInputListener inputListener,
-                               ImageRenderable paddleImage, float leftBoundary,
+                               ImageReader imageReader, float leftBoundary,
                                float rightBoundary, Vector2 windowDimensions) {
         this.brickerGameManager = brickerGameManager;
         this.inputListener = inputListener;
-        this.paddleImage = paddleImage;
+        this.imageReader = imageReader;
         this.leftBoundary = leftBoundary;
         this.rightBoundary = rightBoundary;
         this.windowDimensions = windowDimensions;
@@ -50,8 +50,9 @@ public class ExtraPaddleStrategy implements CollisionStrategy {
 
         // if we got here we need to create an extra paddle
         extraPaddleCounter.increment();
+        Renderable paddleImage = this.imageReader.readImage(PADDLE_IMAGE_PATH, true);
         GameObject extraPaddle = new ExtraPaddle(Vector2.ZERO, PADDLE_DIMENSIONS,
-                this.paddleImage, this.inputListener, this.leftBoundary, this.rightBoundary,
+                paddleImage, this.inputListener, this.leftBoundary, this.rightBoundary,
                 extraPaddleCounter, hitCounter, this.brickerGameManager);
         extraPaddle.setCenter(this.windowDimensions.mult(HALF));
         this.brickerGameManager.addGameObject(extraPaddle, Layer.DEFAULT);
