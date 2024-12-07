@@ -1,12 +1,34 @@
 package src.bricker.gameobjects;
 
 import danogl.GameObject;
+import danogl.collisions.Collision;
+import danogl.collisions.Layer;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
+import src.bricker.main.BrickerGameManager;
+
+import static src.bricker.utils.Constants.*;
 
 public class Heart extends GameObject {
-    public Heart(Vector2 heartPosition, Vector2 heartDimension, Renderable heartImage) {
-        super(heartPosition, heartDimension, heartImage);
+    private final BrickerGameManager brickerGameManager;
 
+    public Heart(Vector2 heartPosition, Renderable heartImage, BrickerGameManager brickerGameManager) {
+        super(heartPosition, HEART_DIMENSION, heartImage);
+        this.brickerGameManager = brickerGameManager;
+    }
+
+    @Override
+    public boolean shouldCollideWith(GameObject other) {
+        float paddleY = (this.brickerGameManager.getWindowDimensions().y() - PADDLE_PADDING_Y);
+        return other.getCenter().y() == paddleY;
+    }
+
+    @Override
+    public void onCollisionEnter(GameObject other, Collision collision) {
+        super.onCollisionEnter(other, collision);
+        if(this.brickerGameManager.getLifeCount() < MAX_LIFE_COUNT){
+            this.brickerGameManager.removeGameObject(this, Layer.DEFAULT);
+            this.brickerGameManager.updateLives();
+        }
     }
 }

@@ -38,12 +38,16 @@ public class BrickerGameManager extends GameManager {
     private SoundReader soundReader;
     private WindowController windowController;
     private UserInputListener inputListener;
+
+
     private int lifeCount;
     private Vector2 ballStartPosition;
     private Vector2 heartStartPosition;
     private Heart[] hearts;
     private GameObject strikes;
     private List<Puck> pucks;
+    private List<Heart> fallingHearts;
+    private Vector2 windowDimensions;
 
     public BrickerGameManager(String bouncingBall, Vector2 vector2, int brickRows, int bricksInRow) {
         super(bouncingBall, vector2);
@@ -51,6 +55,7 @@ public class BrickerGameManager extends GameManager {
         this.bricksInRow = bricksInRow;
         this.brickCount = new Counter(brickRows * bricksInRow);
         this.pucks = new ArrayList<>();
+        this.fallingHearts = new ArrayList<>();
     }
 
     @Override
@@ -61,18 +66,18 @@ public class BrickerGameManager extends GameManager {
         this.windowController = windowController;
         this.inputListener = inputListener;
         this.lifeCount = DEFAULT_LIFE_COUNT;
-        this.hearts = new Heart[lifeCount];
+        this.hearts = new Heart[MAX_LIFE_COUNT];
         super.initializeGame(imageReader, soundReader, inputListener, windowController);
 
-        Vector2 windowDimensions = windowController.getWindowDimensions();
-        this.ballStartPosition = windowDimensions.mult(HALF);
-        this.heartStartPosition = new Vector2(DEFAULT_HEART_START_POSITION.x(), windowDimensions.y()-20);
+        this.windowDimensions = windowController.getWindowDimensions();
+        this.ballStartPosition = this.windowDimensions.mult(HALF);
+        this.heartStartPosition = new Vector2(DEFAULT_HEART_START_POSITION.x(), this.windowDimensions.y()-20);
 
-        Vector2 wallDimensions = new Vector2(WALL_DIMENSION_X, windowDimensions.y() * 2);
+        Vector2 wallDimensions = new Vector2(WALL_DIMENSION_X, this.windowDimensions.y() * 2);
         Vector2 leftWallStart = new Vector2(WALL_X_PADDING, WALL_Y_PADDING);
-        Vector2 rightWallStart = new Vector2(windowDimensions.x() - WALL_X_PADDING, WALL_Y_PADDING);
+        Vector2 rightWallStart = new Vector2(this.windowDimensions.x() - WALL_X_PADDING, WALL_Y_PADDING);
 
-        Vector2 ceilingDimensions = new Vector2(windowDimensions.x() * 2 - WALL_X_PADDING, CEILING_DIMENSION_Y);
+        Vector2 ceilingDimensions = new Vector2(this.windowDimensions.x() * 2 - WALL_X_PADDING, CEILING_DIMENSION_Y);
         Vector2 ceilingStart = new Vector2(WALL_X_PADDING, CEILING_Y_PADDING);
 
 
@@ -83,12 +88,12 @@ public class BrickerGameManager extends GameManager {
 
         createWalls(wallDimensions, leftWallStart, rightWallStart, rectangleRender);
         createCeiling(ceilingDimensions, ceilingStart, rectangleRender);
-        createPaddle(imageReader, windowDimensions, leftBoundary, rightBoundary, inputListener);
+        createPaddle(imageReader, leftBoundary, rightBoundary, inputListener);
         createBall(imageReader, soundReader);
-        createBrickRows(imageReader, inputListener, this.bricksInRow, leftBoundary, rightBoundary, windowDimensions);
-        createBackgroundImage(imageReader, windowDimensions);
-        createHeartRow(imageReader, HEART_WIDTH, this.heartStartPosition);
-        createStrikesLeftInfo(windowDimensions);
+        createBrickRows(imageReader, inputListener, this.bricksInRow, leftBoundary, rightBoundary);
+        createBackgroundImage(imageReader);
+        createHeartRow(imageReader, this.heartStartPosition);
+        createStrikesLeftInfo();
 
         ExtraPaddleStrategy.extraPaddleCounter.reset();
         ExtraPaddleStrategy.hitCounter.reset();
@@ -100,10 +105,10 @@ public class BrickerGameManager extends GameManager {
         this.gameObjects().addGameObject(ceiling, Layer.STATIC_OBJECTS);
     }
 
-    private void createStrikesLeftInfo(Vector2 windowDimensions) {
+    private void createStrikesLeftInfo() {
         TextRenderable strikesRenderable = new TextRenderable(String.valueOf(this.lifeCount));
         strikesRenderable.setColor(getColorByLifeCount());
-        Vector2 strikesPosition = new Vector2(windowDimensions.x() - 20, windowDimensions.y()-20);
+        Vector2 strikesPosition = new Vector2(this.windowDimensions.x() - 20, this.windowDimensions.y()-20);
         this.strikes = new GameObject(strikesPosition, STRIKES_DIMENSIONS, strikesRenderable);
         this.gameObjects().addGameObject(this.strikes, Layer.UI);
     }
@@ -116,17 +121,16 @@ public class BrickerGameManager extends GameManager {
         };
     }
 
-    private void createHeartRow(ImageReader imageReader, float heartWidth, Vector2 startPosition) {
+    private void createHeartRow(ImageReader imageReader, Vector2 startPosition) {
         Renderable heartImage = imageReader.readImage(HEART_IMAGE_PATH, true);
         Vector2 heartPosition = startPosition;
         float heartPadding = 40f / this.lifeCount;
 
 
-        Vector2 heartDimension = new Vector2(heartWidth, BRICK_DIMENSIONS.y());
         for (int heart_index = 0; heart_index < this.lifeCount; heart_index++) {
-            this.hearts[heart_index] = new Heart(heartPosition, heartDimension, heartImage);
+            this.hearts[heart_index] = new Heart(heartPosition, heartImage, this);
             this.gameObjects().addGameObject(this.hearts[heart_index], Layer.UI);
-            heartPosition = heartPosition.add(new Vector2(heartWidth + heartPadding, Vector2.ZERO.y()));
+            heartPosition = heartPosition.add(new Vector2(HEART_DIMENSION.x() + heartPadding, Vector2.ZERO.y()));
         }
     }
 
@@ -137,6 +141,7 @@ public class BrickerGameManager extends GameManager {
         checkIfGameOver();
         checkIfWPressed();
         updatePuckList();
+        updateFallingHeartList();
     }
 
     private void updatePuckList() {
@@ -149,6 +154,17 @@ public class BrickerGameManager extends GameManager {
             }
         }
     }
+    private void updateFallingHeartList() {
+        for (int i = this.fallingHearts.size() - 1; i >= 0; i--) {
+            Heart heart = this.fallingHearts.get(i);
+            float heartHeight = heart.getCenter().y();
+            if (heartHeight > this.paddle.getCenter().y() + this.paddle.getDimensions().y()) {
+                this.gameObjects().removeGameObject(heart);
+                this.fallingHearts.remove(i); // Safe removal
+            }
+        }
+    }
+
 
     private void checkIfWPressed() {
         if(this.inputListener.isKeyPressed(KeyEvent.VK_W)){
@@ -165,7 +181,7 @@ public class BrickerGameManager extends GameManager {
             this.brickCount = new Counter(this.bricksInRow * this.brickRows);
         }
     }
-    
+
     private void openDialog(String prompt){
         if (this.windowController.openYesNoDialog(prompt)){
             this.windowController.resetGame();
@@ -181,8 +197,7 @@ public class BrickerGameManager extends GameManager {
             this.lifeCount--;
             this.removeGameObject(this.hearts[this.lifeCount], Layer.UI);
             this.removeGameObject(this.strikes, Layer.UI);
-            this.createStrikesLeftInfo(this.windowController.getWindowDimensions());
-
+            this.createStrikesLeftInfo();
             if (this.lifeCount == 0) {
                 openDialog(LOSE_PROMPT);
             }
@@ -193,33 +208,33 @@ public class BrickerGameManager extends GameManager {
         }
     }
 
-    private void createPaddle(ImageReader imageReader, Vector2 windowDimensions, float leftBoundary,
+    private void createPaddle(ImageReader imageReader, float leftBoundary,
                               float rightBoundary,
                               UserInputListener inputListener) {
         // create paddle
         Renderable paddleImage = imageReader.readImage(PADDLE_IMAGE_PATH, true);
         this.paddle = new Paddle(Vector2.ZERO, PADDLE_DIMENSIONS,
                 paddleImage, inputListener, leftBoundary, rightBoundary);
-        Vector2 paddlePosition = new Vector2(windowDimensions.x() / 2, (int) (windowDimensions.y() - PADDLE_PADDING_Y));
+        Vector2 paddlePosition = new Vector2(this.windowDimensions.x() / 2, (this.windowDimensions.y() - PADDLE_PADDING_Y));
         paddle.setCenter(paddlePosition);
         this.gameObjects().addGameObject(paddle);
 
     }
 
-    private void createBackgroundImage(ImageReader imageReader, Vector2 windowDimensions) {
+    private void createBackgroundImage(ImageReader imageReader) {
         Renderable bgImageRender = imageReader.readImage(BACKGROUND_IMAGE_PATH, false);
-        GameObject bgImage = new GameObject(Vector2.ZERO, new Vector2(windowDimensions.x(), windowDimensions.y()), bgImageRender);
+        GameObject bgImage = new GameObject(Vector2.ZERO, new Vector2(this.windowDimensions.x(), this.windowDimensions.y()), bgImageRender);
         this.gameObjects().addGameObject(bgImage, Layer.BACKGROUND);
     }
 
     private void createBrickRow(ImageReader imageReader, Vector2 startPosition, UserInputListener inputListener,
-                                int numberOfBricks, float leftBoundary, float rightBoundary, Vector2 windowDimensions) {
+                                int numberOfBricks, float leftBoundary, float rightBoundary) {
         Renderable brickImage = imageReader.readImage(BRICK_IMAGE_PATH, true);
 
         CollisionStrategyFactory factory = new CollisionStrategyFactory();
         CollisionStrategy brickCollisionStrategy = factory.getCollisionStrategy(
                         this, leftBoundary, rightBoundary,
-                        inputListener, imageReader, windowDimensions);
+                        inputListener, imageReader, this.windowDimensions);
 
         float brickWidth = (rightBoundary - leftBoundary) / (numberOfBricks);
 
@@ -236,12 +251,11 @@ public class BrickerGameManager extends GameManager {
     }
 
     private void createBrickRows(ImageReader imageReader, UserInputListener inputListener,
-                                 int numberOfBricks, float leftBoundary, float rightBoundary,
-                                 Vector2 windowDimensions) {
+                                 int numberOfBricks, float leftBoundary, float rightBoundary) {
         Vector2 brickRowStart = new Vector2(leftBoundary, BRICKS_START_POSITION.y());
         for (int row = 0; row < this.brickRows; row++) {
             createBrickRow(imageReader, brickRowStart, inputListener, numberOfBricks,
-                    leftBoundary, rightBoundary, windowDimensions);
+                    leftBoundary, rightBoundary);
             brickRowStart = brickRowStart.add(new Vector2(Vector2.ZERO.x(), Vector2.DOWN.y()).mult(BRICK_ROWS_PADDING));
         }
     }
@@ -341,4 +355,25 @@ public class BrickerGameManager extends GameManager {
     }
 
 
+    public Vector2 getWindowDimensions() {
+        return this.windowDimensions;
+    }
+
+    public void updateLives() {
+        for (int i = this.lifeCount - 1; i >= 0; i--) {
+            this.removeGameObject(this.hearts[i], Layer.UI);
+            this.hearts[i] = null;
+        }
+        this.removeGameObject(this.strikes, Layer.UI);
+        this.lifeCount++;
+        createHeartRow(imageReader, this.heartStartPosition);
+        createStrikesLeftInfo();
+    }
+
+    public void addFallingHeart(Heart heart) {
+        this.fallingHearts.add(heart);
+    }
+    public int getLifeCount() {
+        return lifeCount;
+    }
 }

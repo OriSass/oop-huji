@@ -65,5 +65,4 @@ public class Paddle extends GameObject {
         Vector2 newTopLeftCorner = new Vector2(newX, currentY);
         this.setTopLeftCorner( newTopLeftCorner);
     }
-
 }

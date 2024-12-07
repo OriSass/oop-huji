@@ -9,7 +9,7 @@ public class Constants {
 
     // paddle
     public static final Vector2 PADDLE_DIMENSIONS = new Vector2(100, 15);
-    public static final int PADDLE_PADDING_Y = 30;
+    public static final float PADDLE_PADDING_Y = 30f;
 
     // brick
     public static final Vector2 BRICK_DIMENSIONS = new Vector2(100f, 15f);
@@ -52,10 +52,13 @@ public class Constants {
     public static final Vector2 GAME_DIMENSIONS = new Vector2(500, 700);
 
     // lifes | heart | strikes
-    public static final float HEART_WIDTH = 10f;
-    public static final int DEFAULT_LIFE_COUNT = 4;
+    public static final int DEFAULT_LIFE_COUNT = 3;
+    public static final int MAX_LIFE_COUNT = 4;
     public static final Vector2 DEFAULT_HEART_START_POSITION = new Vector2(10f, 10f);
     public static final Vector2 STRIKES_DIMENSIONS = new Vector2(15f, 15f);
+    public static final Vector2 HEART_DIMENSION = new Vector2(10f, 15f);
+    public static final Vector2 FALLING_HEART_VELOCITY = new Vector2(Vector2.ZERO.x(), 100f);
+
 
     public static final float EPSILON = 4;
     public static final float HALF = 0.5F;

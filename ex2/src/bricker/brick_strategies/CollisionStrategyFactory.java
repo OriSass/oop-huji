@@ -18,27 +18,22 @@ public class CollisionStrategyFactory {
             ImageReader imageReader, Vector2 windowDimensions) {
 
 //        int randomNumber = random.nextInt(10) + 1;
-        int randomNumber = 3;
+        int randomNumber = 4;
         if (randomNumber > 5) {
             return new BasicCollisionStrategy(brickerGameManager);
         }
         SpecialStrategies strategy = SpecialStrategies.fromValue(randomNumber);
-        switch (strategy) {
-            case SpecialStrategies.PUCK:
-                return new PuckStrategy(brickerGameManager);
-            case SpecialStrategies.EXTRA_PADDLE:
-                return new ExtraPaddleStrategy(brickerGameManager, inputListener,
-                        imageReader, leftBoundary, rightBoundary, windowDimensions);
-            case SpecialStrategies.TURBO:
-                return new TurboStrategy(brickerGameManager, imageReader);
-            default:
-                return null;
-//            case SpecialStrategies.EXTRA_LIFE:
-//                break;
+        return switch (strategy) {
+            case SpecialStrategies.PUCK -> new PuckStrategy(brickerGameManager);
+            case SpecialStrategies.EXTRA_PADDLE -> new ExtraPaddleStrategy(brickerGameManager, inputListener,
+                    imageReader, leftBoundary, rightBoundary, windowDimensions);
+            case SpecialStrategies.TURBO -> new TurboStrategy(brickerGameManager, imageReader);
+            case SpecialStrategies.EXTRA_LIFE -> new ExtraLifeStrategy(brickerGameManager, imageReader);
+            default -> null;
 //            case SpecialStrategies.DOUBLE:
 //                break;
 //            default:
 //                break;
-        }
+        };
     }
 }

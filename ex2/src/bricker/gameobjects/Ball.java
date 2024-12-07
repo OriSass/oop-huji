@@ -53,10 +53,7 @@ public class Ball extends GameObject {
         }
         // if we got here we are in turbo mode
         if(getCollisionCounter() >= 6){
-            this.turboOn = false;
-            this.renderer().setRenderable(this.ballImage);
-            Vector2 normalVelocity = getVelocity().mult(1f / TURBO_SPEED_FACTOR);
-            this.setVelocity(normalVelocity);
+            resetBallToNormal();
         }
     }
 
@@ -80,4 +77,10 @@ public class Ball extends GameObject {
         this.turboOn = turboOn;
     }
 
+    public void resetBallToNormal() {
+        this.turboOn = false;
+        this.renderer().setRenderable(this.ballImage);
+        Vector2 normalVelocity = getVelocity().mult(1f / TURBO_SPEED_FACTOR);
+        this.setVelocity(normalVelocity);
+    }
 }
