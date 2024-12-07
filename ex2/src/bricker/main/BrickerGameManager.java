@@ -1,59 +1,42 @@
-package src.bricker;
+package src.bricker.main;
 
 import danogl.GameManager;
 import danogl.GameObject;
 import danogl.collisions.Layer;
 import danogl.gui.*;
+import danogl.gui.rendering.ImageRenderable;
 import danogl.gui.rendering.RectangleRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.gui.rendering.TextRenderable;
 import danogl.util.Counter;
 import danogl.util.Vector2;
-import src.bricker.brick_strategies.BasicCollisionStrategy;
 import src.bricker.brick_strategies.CollisionStrategy;
-import src.bricker.gameobjects.Ball;
-import src.bricker.gameobjects.Brick;
-import src.bricker.gameobjects.Heart;
-import src.bricker.gameobjects.Paddle;
+import src.bricker.brick_strategies.CollisionStrategyFactory;
+import src.bricker.brick_strategies.ExtraPaddleStrategy;
+import src.bricker.gameobjects.*;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+
+import static src.bricker.utils.Constants.*;
 
 public class BrickerGameManager extends GameManager {
 
     // general
     private static final Random random = new Random();
-    private static final float EPSILON = 4;
-    private static final float HALF = 0.5F;
-    private static final float HEART_WIDTH = 10f;
-    private static final Vector2 DEFAULT_HEART_START_POSITION = new Vector2(10f, 10f);
-    private static final Vector2 STRIKES_DIMENSIONS = new Vector2(15f, 15f);
 
     // bricks
     private final int bricksInRow;
     private final int brickRows;
 
-    private static final float BRICK_ROWS_PADDING = 20f;
-    private static final int DEFAULT_NUMBER_OF_BRICK_ROWS = 7;
-    private static final int DEFAULT_NUMBER_OF_BRICKS_IN_ROWS = 8;
-
-    // ceiling
-    private static final float CEILING_DIMENSION_Y = 5;
-    private static final float CEILING_Y_PADDING = 3;
-
-    // wall
-    private static final float WALL_DIMENSION_X = 5;
-    private static final float WALL_X_PADDING = 3;
-    private static final float WALL_Y_PADDING = 10;
-
-    // game
-    private static final String GAME_TITLE = "Bouncing Ball";
-    private static final Vector2 GAME_DIMENSIONS = new Vector2(500, 700);
-    private static final int DEFAULT_LIFE_COUNT = 4;
     private Counter brickCount;
     private GameObject ball;
     private GameObject paddle;
+    private ImageReader imageReader;
+    private SoundReader soundReader;
     private WindowController windowController;
     private UserInputListener inputListener;
     private int lifeCount;
@@ -61,44 +44,21 @@ public class BrickerGameManager extends GameManager {
     private Vector2 heartStartPosition;
     private Heart[] hearts;
     private GameObject strikes;
-
-
-
-
-    // ball
-    private static final float BALL_SPEED = 300f;
-    private static final Vector2 BALL_DIMENSIONS = new Vector2(50, 50);
-
-    // paddle
-    private static final Vector2 PADDLE_DIMENSIONS = new Vector2(100, 15);
-    private static final int PADDLE_PADDING_Y = 30;
-
-    // brick
-    private static final Vector2 BRICK_DIMENSIONS = new Vector2(100f, 15f);
-    private static final Vector2 BRICKS_START_POSITION = new Vector2(20f, 10f);
-
-    // paths
-    private static final String PADDLE_IMAGE_PATH = "src/assets/paddle.png";
-    private static final String BACKGROUND_IMAGE_PATH = "src/assets/DARK_BG2_small.jpeg";
-    private static final String BRICK_IMAGE_PATH = "src/assets/brick.png";
-    private static final String BALL_IMAGE_PATH = "src/assets/ball.png";
-    private static final String BALL_COLLISION_SOUND_PATH = "src/assets/blop.wav";
-    private static final String HEART_IMAGE_PATH = "src/assets/heart.png";
-
-    // prompts
-    private static final String WIN_PROMPT = "You win! Play again?";
-    private static final String LOSE_PROMPT = "You lose! Play again?";
+    private List<Puck> pucks;
 
     public BrickerGameManager(String bouncingBall, Vector2 vector2, int brickRows, int bricksInRow) {
         super(bouncingBall, vector2);
         this.brickRows = brickRows;
         this.bricksInRow = bricksInRow;
         this.brickCount = new Counter(brickRows * bricksInRow);
+        this.pucks = new ArrayList<>();
     }
 
     @Override
     public void initializeGame(ImageReader imageReader, SoundReader soundReader,
                                UserInputListener inputListener, WindowController windowController) {
+        this.imageReader = imageReader;
+        this.soundReader = soundReader;
         this.windowController = windowController;
         this.inputListener = inputListener;
         this.lifeCount = DEFAULT_LIFE_COUNT;
@@ -126,10 +86,13 @@ public class BrickerGameManager extends GameManager {
         createCeiling(ceilingDimensions, ceilingStart, rectangleRender);
         createPaddle(imageReader, windowDimensions, leftBoundary, rightBoundary, inputListener);
         createBall(imageReader, soundReader);
-        createBrickRows(imageReader, this.bricksInRow, leftBoundary, rightBoundary);
+        createBrickRows(imageReader, inputListener, this.bricksInRow, leftBoundary, rightBoundary, windowDimensions);
         createBackgroundImage(imageReader, windowDimensions);
         createHeartRow(imageReader, HEART_WIDTH, this.heartStartPosition);
         createStrikesLeftInfo(windowDimensions);
+
+        ExtraPaddleStrategy.extraPaddleCounter.reset();
+        ExtraPaddleStrategy.hitCounter.reset();
     }
 
     private void createCeiling(Vector2 ceilingDimensions, Vector2 ceilingStartPosition, Renderable rectangleRender) {
@@ -174,6 +137,18 @@ public class BrickerGameManager extends GameManager {
         checkIfPlayerWon();
         checkIfGameOver();
         checkIfWPressed();
+        updatePuckList();
+    }
+
+    private void updatePuckList() {
+        for (int i = this.pucks.size() - 1; i >= 0; i--) {
+            Puck puck = this.pucks.get(i);
+            float puckHeight = puck.getCenter().y();
+            if (puckHeight > this.paddle.getCenter().y() + this.paddle.getDimensions().y()) {
+                this.gameObjects().removeGameObject(puck);
+                this.pucks.remove(i); // Safe removal
+            }
+        }
     }
 
     private void checkIfWPressed() {
@@ -185,7 +160,7 @@ public class BrickerGameManager extends GameManager {
     }
 
     private void checkIfPlayerWon() {
-        if(this.brickCount.value() == 0){
+        if(this.brickCount.value() <= 0){
             openDialog(WIN_PROMPT);
             this.ball.setCenter(this.ballStartPosition);
             this.brickCount = new Counter(this.bricksInRow * this.brickRows);
@@ -238,10 +213,15 @@ public class BrickerGameManager extends GameManager {
         this.gameObjects().addGameObject(bgImage, Layer.BACKGROUND);
     }
 
-    private void createBrickRow(ImageReader imageReader, Vector2 startPosition,
-                                int numberOfBricks, float leftBoundary, float rightBoundary) {
+    private void createBrickRow(ImageReader imageReader, Vector2 startPosition, UserInputListener inputListener,
+                                int numberOfBricks, float leftBoundary, float rightBoundary, Vector2 windowDimensions) {
         Renderable brickImage = imageReader.readImage(BRICK_IMAGE_PATH, true);
-        CollisionStrategy brickCollisionStrategy = new BasicCollisionStrategy(this);
+        ImageRenderable paddleImage = imageReader.readImage(PADDLE_IMAGE_PATH, true);
+
+        CollisionStrategyFactory factory = new CollisionStrategyFactory();
+        CollisionStrategy brickCollisionStrategy = factory.getCollisionStrategy(
+                        this, leftBoundary, rightBoundary,
+                        inputListener, paddleImage, windowDimensions);
 
         float brickWidth = (rightBoundary - leftBoundary) / (numberOfBricks);
 
@@ -257,10 +237,13 @@ public class BrickerGameManager extends GameManager {
         }
     }
 
-    private void createBrickRows(ImageReader imageReader, int numberOfBricks, float leftBoundary, float rightBoundary) {
+    private void createBrickRows(ImageReader imageReader, UserInputListener inputListener,
+                                 int numberOfBricks, float leftBoundary, float rightBoundary,
+                                 Vector2 windowDimensions) {
         Vector2 brickRowStart = new Vector2(leftBoundary, BRICKS_START_POSITION.y());
         for (int row = 0; row < this.brickRows; row++) {
-            createBrickRow(imageReader, brickRowStart, numberOfBricks, leftBoundary, rightBoundary);
+            createBrickRow(imageReader, brickRowStart, inputListener, numberOfBricks,
+                    leftBoundary, rightBoundary, windowDimensions);
             brickRowStart = brickRowStart.add(new Vector2(Vector2.ZERO.x(), Vector2.DOWN.y()).mult(BRICK_ROWS_PADDING));
         }
     }
@@ -270,6 +253,13 @@ public class BrickerGameManager extends GameManager {
         float ballVelocityY = getRandomVelocityFlip(BALL_SPEED);
 
         return (new Vector2(ballVelocityX, ballVelocityY));
+    }
+
+    private Vector2 getRandomUpperVelocity(){
+        double angle = random.nextDouble() * Math.PI;
+        float velocityX = (float) Math.cos(angle) * BALL_SPEED;
+        float velocityY = (float) Math.sin(angle) * BALL_SPEED;
+        return new Vector2(velocityX, velocityY);
     }
 
     private void createBall(ImageReader imageReader, SoundReader soundReader) {
@@ -311,6 +301,10 @@ public class BrickerGameManager extends GameManager {
         }
     }
 
+    public void addGameObject(GameObject gameObject, int layer) {
+        this.gameObjects().addGameObject(gameObject, layer);
+    }
+
     private static int getNumberOfRows(String[] args){
         if(args.length >= 2){
             return Integer.parseInt(args[1]);
@@ -331,4 +325,22 @@ public class BrickerGameManager extends GameManager {
         GameManager gm = new BrickerGameManager(GAME_TITLE, GAME_DIMENSIONS, rows, bricks_in_row);
         gm.run();
     }
+
+    public void createPucks(int numberOfPucks, Vector2 location) {
+        for (int i = 0; i < numberOfPucks; i++){
+            createPuck(location);
+        }
+    }
+
+    public void createPuck(Vector2 location) {
+        Renderable puckImage = this.imageReader.readImage(PUCK_IMAGE_PATH, true);
+        Sound collisionSound = this.soundReader.readSound(BALL_COLLISION_SOUND_PATH);
+        Puck puck = new Puck(Vector2.ZERO, PUCK_DIMENSIONS, puckImage, collisionSound);
+        puck.setVelocity(getRandomUpperVelocity());
+        puck.setCenter(location);
+        this.pucks.add(puck);
+        this.gameObjects().addGameObject(puck);
+    }
+
+
 }

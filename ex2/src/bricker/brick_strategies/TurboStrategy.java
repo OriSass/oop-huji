@@ -1,20 +1,17 @@
 package src.bricker.brick_strategies;
 
 import danogl.GameObject;
-import danogl.collisions.Layer;
 import src.bricker.main.BrickerGameManager;
 
-public class BasicCollisionStrategy implements CollisionStrategy {
-
-
+public class TurboStrategy implements CollisionStrategy {
     private final BrickerGameManager brickerGameManager;
 
-    public BasicCollisionStrategy(BrickerGameManager brickerGameManager) {
+    public TurboStrategy(BrickerGameManager brickerGameManager) {
         this.brickerGameManager = brickerGameManager;
     }
 
     @Override
     public void onCollision(GameObject gameObject1, GameObject gameObject2) {
-        this.brickerGameManager.removeGameObject(gameObject1, Layer.STATIC_OBJECTS);
+
     }
 }
