@@ -1,5 +1,7 @@
 package src.bricker.gameobjects;
 
+import danogl.GameObject;
+import danogl.collisions.Collision;
 import danogl.gui.Sound;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
@@ -13,9 +15,14 @@ public class Puck extends Ball{
      * @param dimensions     Width and height in window coordinates.
      * @param renderable     The renderable representing the object. Can be null, in which case
      *                       the GameObject will not be rendered.
-     * @param collisionSound
+     * @param collisionSound sound made when puck collides with something else
      */
     public Puck(Vector2 topLeftCorner, Vector2 dimensions, Renderable renderable, Sound collisionSound) {
         super(topLeftCorner, dimensions, renderable, collisionSound);
+    }
+
+    @Override
+    public void onCollisionEnter(GameObject other, Collision collision) {
+        super.onCollisionEnter(other, collision);
     }
 }

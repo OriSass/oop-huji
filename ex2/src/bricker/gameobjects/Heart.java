@@ -19,8 +19,7 @@ public class Heart extends GameObject {
 
     @Override
     public boolean shouldCollideWith(GameObject other) {
-        float paddleY = (this.brickerGameManager.getWindowDimensions().y() - PADDLE_PADDING_Y);
-        return other.getCenter().y() == paddleY;
+        return other.getTag().equals(PADDLE_TAG);
     }
 
     @Override

@@ -41,6 +41,7 @@ public class Constants {
     // ceiling
     public static final float CEILING_DIMENSION_Y = 5;
     public static final float CEILING_Y_PADDING = 3;
+    public static final String PADDLE_TAG = "paddle";
 
     // wall
     public static final float WALL_DIMENSION_X = 5;

@@ -170,7 +170,6 @@ public class BrickerGameManager extends GameManager {
         if(this.inputListener.isKeyPressed(KeyEvent.VK_W)){
             openDialog(WIN_PROMPT);
             this.ball.setCenter(this.ballStartPosition);
-            this.brickCount = new Counter(this.bricksInRow * this.brickRows);
         }
     }
 
@@ -178,12 +177,12 @@ public class BrickerGameManager extends GameManager {
         if(this.brickCount.value() <= 0){
             openDialog(WIN_PROMPT);
             this.ball.setCenter(this.ballStartPosition);
-            this.brickCount = new Counter(this.bricksInRow * this.brickRows);
         }
     }
 
     private void openDialog(String prompt){
         if (this.windowController.openYesNoDialog(prompt)){
+            this.brickCount = new Counter(this.bricksInRow * this.brickRows);
             this.windowController.resetGame();
         }
         else{
@@ -215,9 +214,11 @@ public class BrickerGameManager extends GameManager {
         Renderable paddleImage = imageReader.readImage(PADDLE_IMAGE_PATH, true);
         this.paddle = new Paddle(Vector2.ZERO, PADDLE_DIMENSIONS,
                 paddleImage, inputListener, leftBoundary, rightBoundary);
+
         Vector2 paddlePosition = new Vector2(this.windowDimensions.x() / 2, (this.windowDimensions.y() - PADDLE_PADDING_Y));
-        paddle.setCenter(paddlePosition);
-        this.gameObjects().addGameObject(paddle);
+        this.paddle.setCenter(paddlePosition);
+        this.paddle.setTag(PADDLE_TAG);
+        this.gameObjects().addGameObject(this.paddle);
 
     }
 
@@ -231,10 +232,9 @@ public class BrickerGameManager extends GameManager {
                                 int numberOfBricks, float leftBoundary, float rightBoundary) {
         Renderable brickImage = imageReader.readImage(BRICK_IMAGE_PATH, true);
 
-        CollisionStrategyFactory factory = new CollisionStrategyFactory();
-        CollisionStrategy brickCollisionStrategy = factory.getCollisionStrategy(
-                        this, leftBoundary, rightBoundary,
-                        inputListener, imageReader, this.windowDimensions);
+        CollisionStrategyFactory factory = new CollisionStrategyFactory(
+                this, leftBoundary, rightBoundary,
+                inputListener, imageReader, this.windowDimensions);
 
         float brickWidth = (rightBoundary - leftBoundary) / (numberOfBricks);
 
@@ -243,6 +243,7 @@ public class BrickerGameManager extends GameManager {
 
         Vector2 brickDimension = new Vector2(brickWidth, BRICK_DIMENSIONS.y());
         for (int brickCount = 0; brickCount < numberOfBricks; brickCount++) {
+            CollisionStrategy brickCollisionStrategy = factory.getCollisionStrategy();
             GameObject brick = new Brick(brickPosition, brickDimension,
                     brickImage, brickCollisionStrategy);
             this.gameObjects().addGameObject(brick, Layer.STATIC_OBJECTS);
@@ -307,8 +308,8 @@ public class BrickerGameManager extends GameManager {
 
 
     public void removeGameObject(GameObject gameObject, int layer) {
-        this.gameObjects().removeGameObject(gameObject, layer);
-        if(gameObject instanceof Brick){
+        boolean removedSuccessfully = this.gameObjects().removeGameObject(gameObject, layer);
+        if(removedSuccessfully && gameObject instanceof Brick){
             this.brickCount.decrement();
         }
     }
@@ -352,11 +353,6 @@ public class BrickerGameManager extends GameManager {
         puck.setCenter(location);
         this.pucks.add(puck);
         this.gameObjects().addGameObject(puck);
-    }
-
-
-    public Vector2 getWindowDimensions() {
-        return this.windowDimensions;
     }
 
     public void updateLives() {

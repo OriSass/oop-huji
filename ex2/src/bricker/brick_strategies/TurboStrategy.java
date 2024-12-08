@@ -49,4 +49,9 @@ public class TurboStrategy implements CollisionStrategy {
         ball.setTurboOn(true);
         ball.resetCollisionCounter();
     }
+
+    @Override
+    public String toString() {
+        return "Turbo";
+    }
 }
