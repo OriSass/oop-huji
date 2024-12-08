@@ -12,18 +12,40 @@ import src.bricker.main.BrickerGameManager;
 
 import static src.bricker.utils.Constants.*;
 
+/**
+ * A collision strategy that adds an extra paddle to the game.
+ * When a collision occurs, this strategy creates an additional paddle.
+ */
 public class ExtraPaddleStrategy extends BasicCollisionStrategy {
 
+    // Counter for the number of extra paddles.
     public static final Counter extraPaddleCounter = new Counter();
+    // Counter for the number of hits.
     public static final Counter hitCounter = new Counter();
 
+    // The game manager.
     private final BrickerGameManager brickerGameManager;
+    // Listens for user input.
     private final UserInputListener inputListener;
+    // Reads images for rendering.
     private final ImageReader imageReader;
+    // The left boundary of the game area.
     private final float leftBoundary;
+    // The right boundary of the game area.
     private final float rightBoundary;
+    // The dimensions of the game window.
     private final Vector2 windowDimensions;
 
+    /**
+     * Constructs an ExtraPaddleStrategy.
+     *
+     * @param brickerGameManager The game manager.
+     * @param inputListener      Listens for user input.
+     * @param imageReader        Reads images for rendering.
+     * @param leftBoundary       The left boundary of the game area.
+     * @param rightBoundary      The right boundary of the game area.
+     * @param windowDimensions   The dimensions of the game window.
+     */
     public ExtraPaddleStrategy(BrickerGameManager brickerGameManager,
                                UserInputListener inputListener,
                                ImageReader imageReader, float leftBoundary,
@@ -37,6 +59,13 @@ public class ExtraPaddleStrategy extends BasicCollisionStrategy {
         this.windowDimensions = windowDimensions;
     }
 
+    /**
+     * Handles the collision between two game objects.
+     * Creates an additional paddle when a collision occurs.
+     *
+     * @param gameObject1 The first game object.
+     * @param gameObject2 The second game object.
+     */
     @Override
     public void onCollision(GameObject gameObject1, GameObject gameObject2) {
         // remove brick
@@ -44,6 +73,10 @@ public class ExtraPaddleStrategy extends BasicCollisionStrategy {
         addExtraPaddle();
     }
 
+    /**
+     * Adds an extra paddle to the game.
+     * This method creates an extra paddle if the player has not already received one.
+     */
     public void addExtraPaddle() {
         if(extraPaddleCounter.value() > 0){
             return;

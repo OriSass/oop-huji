@@ -14,12 +14,26 @@ import java.util.Random;
 
 import static src.bricker.utils.Constants.*;
 
+/**
+ * A collision strategy that creates multiple pucks when a collision occurs.
+ * This strategy creates a specified number of pucks at the location of the collision.
+ */
 public class PuckStrategy extends BasicCollisionStrategy {
-    private static final int NUMBER_OF_PUCKS = 2;
+
+    // The game manager
     private final BrickerGameManager brickerGameManager;
+    // Reads images for rendering
     private final ImageReader imageReader;
+    // Reads sounds for playback
     private final SoundReader soundReader;
 
+    /**
+     * Constructs a PuckStrategy.
+     *
+     * @param brickerGameManager The game manager.
+     * @param imageReader        Reads images for rendering.
+     * @param soundReader        Reads sounds for playback.
+     */
     public PuckStrategy(BrickerGameManager brickerGameManager, ImageReader imageReader, SoundReader soundReader) {
         super(brickerGameManager);
         this.brickerGameManager = brickerGameManager;
@@ -27,8 +41,12 @@ public class PuckStrategy extends BasicCollisionStrategy {
         this.soundReader = soundReader;
     }
 
-    /*
-    gameObject1 is brick
+    /**
+     * Handles the collision between two game objects.
+     * Creates multiple pucks at the location of the collision.
+     *
+     * @param gameObject1 The first game object (brick).
+     * @param gameObject2 The second game object.
      */
     @Override
     public void onCollision(GameObject gameObject1, GameObject gameObject2) {
@@ -36,12 +54,22 @@ public class PuckStrategy extends BasicCollisionStrategy {
         createPucks(gameObject1.getCenter());
     }
 
+    /**
+     * Creates multiple pucks at the specified location.
+     *
+     * @param location The location to create the pucks.
+     */
     private void createPucks(Vector2 location) {
-        for (int i = 0; i < PuckStrategy.NUMBER_OF_PUCKS; i++){
+        for (int i = 0; i < NUMBER_OF_PUCKS; i++){
             createPuck(location);
         }
     }
 
+    /**
+     * Creates a puck at the specified location.
+     *
+     * @param location The location to create the puck.
+     */
     private void createPuck(Vector2 location) {
         Renderable puckImage = this.imageReader.readImage(PUCK_IMAGE_PATH, true);
         Sound collisionSound = this.soundReader.readSound(BALL_COLLISION_SOUND_PATH);
@@ -52,6 +80,11 @@ public class PuckStrategy extends BasicCollisionStrategy {
         this.brickerGameManager.addGameObject(puck, Layer.DEFAULT);
     }
 
+    /**
+     * Generates a random velocity vector pointing upwards.
+     *
+     * @return A random velocity vector.
+     */
     private Vector2 getRandomUpperVelocity(){
         Random random = new Random();
         double angle = random.nextDouble() * Math.PI;

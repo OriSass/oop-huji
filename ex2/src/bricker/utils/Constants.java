@@ -24,6 +24,7 @@ public class Constants {
 
     // puck
     public static final Vector2 PUCK_DIMENSIONS = BALL_DIMENSIONS.mult(0.75f) ;
+    public static final int NUMBER_OF_PUCKS = 2;
 
     // turbo
     public static final float TURBO_SPEED_FACTOR = 1.4f;
@@ -74,8 +75,13 @@ public class Constants {
     // renders
     public static Renderable RECTANGLE_RENDER = new RectangleRenderable(Color.orange);
 
+    // strategies
+    public static final int DOUBLE_STRATEGY_LIMIT = 3;
+
+    // physics
     public static final float EPSILON = 4;
     public static final float HALF = 0.5F;
+
 
 
 
