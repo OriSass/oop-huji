@@ -4,11 +4,9 @@ import danogl.GameObject;
 import danogl.gui.ImageReader;
 import danogl.gui.rendering.Renderable;
 import src.bricker.gameobjects.Ball;
-import src.bricker.gameobjects.Puck;
 import src.bricker.main.BrickerGameManager;
 
-import static src.bricker.utils.Constants.TURBO_BALL_IMAGE_PATH;
-import static src.bricker.utils.Constants.TURBO_SPEED_FACTOR;
+import static src.bricker.utils.Constants.*;
 
 public class TurboStrategy extends BasicCollisionStrategy {
     private final ImageReader imageReader;
@@ -30,7 +28,7 @@ public class TurboStrategy extends BasicCollisionStrategy {
     }
 
     private void handleTurbo(GameObject gameObject2) {
-        if (gameObject2 instanceof Puck){
+        if (gameObject2.getTag().equals(PUCK_TAG)){
             return;
         }
         // if we got here the collision was caused by the "main" ball

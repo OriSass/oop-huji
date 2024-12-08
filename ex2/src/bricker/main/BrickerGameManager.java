@@ -4,7 +4,6 @@ import danogl.GameManager;
 import danogl.GameObject;
 import danogl.collisions.Layer;
 import danogl.gui.*;
-import danogl.gui.rendering.RectangleRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.gui.rendering.TextRenderable;
 import danogl.util.Counter;
@@ -55,50 +54,49 @@ public class BrickerGameManager extends GameManager {
     @Override
     public void initializeGame(ImageReader imageReader, SoundReader soundReader,
                                UserInputListener inputListener, WindowController windowController) {
-        this.imageReader = imageReader;
-        this.soundReader = soundReader;
-        this.windowController = windowController;
-        this.inputListener = inputListener;
-        this.lifeCount = DEFAULT_LIFE_COUNT;
-        this.hearts = new Heart[MAX_LIFE_COUNT];
+        initMembers(imageReader, soundReader, inputListener, windowController);
+
+        ExtraPaddleStrategy.extraPaddleCounter.reset();
+        ExtraPaddleStrategy.hitCounter.reset();
+
         super.initializeGame(imageReader, soundReader, inputListener, windowController);
 
-        this.windowDimensions = windowController.getWindowDimensions();
-        this.ballStartPosition = this.windowDimensions.mult(HALF);
-        this.heartStartPosition = new Vector2(
-                DEFAULT_HEART_START_POSITION.x(), this.windowDimensions.y()-20);
-
         Vector2 wallDimensions = new Vector2(WALL_DIMENSION_X, this.windowDimensions.y() * 2);
-        Vector2 leftWallStart = new Vector2(WALL_X_PADDING, WALL_Y_PADDING);
         Vector2 rightWallStart = new Vector2(this.windowDimensions.x() - WALL_X_PADDING, WALL_Y_PADDING);
-
         Vector2 ceilingDimensions = new Vector2(this.windowDimensions.x() * 2 - WALL_X_PADDING,
                 CEILING_DIMENSION_Y);
-        Vector2 ceilingStart = new Vector2(WALL_X_PADDING, CEILING_Y_PADDING);
 
-
-        float leftBoundary = leftWallStart.x() + wallDimensions.x() + EPSILON;
+        float leftBoundary = LEFT_WALL_START.x() + wallDimensions.x() + EPSILON;
         float rightBoundary = rightWallStart.x() - PADDLE_DIMENSIONS.x() - wallDimensions.x() - EPSILON;
 
-        Renderable rectangleRender = new RectangleRenderable(Color.orange);
-
-        createWalls(wallDimensions, leftWallStart, rightWallStart, rectangleRender);
-        createCeiling(ceilingDimensions, ceilingStart, rectangleRender);
+        createWalls(wallDimensions, LEFT_WALL_START, rightWallStart, RECTANGLE_RENDER);
+        createCeiling(ceilingDimensions, RECTANGLE_RENDER);
         createPaddle(imageReader, leftBoundary, rightBoundary, inputListener);
         createBall(imageReader, soundReader);
         createBrickRows(imageReader, inputListener, this.bricksInRow, leftBoundary, rightBoundary);
         createBackgroundImage(imageReader);
         createHeartRow(imageReader, this.heartStartPosition);
         createStrikesLeftInfo();
-
-        ExtraPaddleStrategy.extraPaddleCounter.reset();
-        ExtraPaddleStrategy.hitCounter.reset();
     }
 
-    private void createCeiling(Vector2 ceilingDimensions, Vector2 ceilingStartPosition,
+    private void initMembers(ImageReader imageReader, SoundReader soundReader,
+                             UserInputListener inputListener, WindowController windowController) {
+        this.imageReader = imageReader;
+        this.soundReader = soundReader;
+        this.windowController = windowController;
+        this.inputListener = inputListener;
+        this.lifeCount = DEFAULT_LIFE_COUNT;
+        this.hearts = new Heart[MAX_LIFE_COUNT];
+        this.windowDimensions = windowController.getWindowDimensions();
+        this.ballStartPosition = this.windowDimensions.mult(HALF);
+        this.heartStartPosition = new Vector2(
+                DEFAULT_HEART_START_POSITION.x(), this.windowDimensions.y()-20);
+    }
+
+    private void createCeiling(Vector2 ceilingDimensions,
                                Renderable rectangleRender) {
         GameObject ceiling = new GameObject(Vector2.ZERO, ceilingDimensions, rectangleRender);
-        ceiling.setCenter(ceilingStartPosition);
+        ceiling.setCenter(CEILING_START);
         this.gameObjects().addGameObject(ceiling, Layer.STATIC_OBJECTS);
     }
 
@@ -124,7 +122,6 @@ public class BrickerGameManager extends GameManager {
         Vector2 heartPosition = startPosition;
         float heartPadding = 40f / this.lifeCount;
 
-
         for (int heart_index = 0; heart_index < this.lifeCount; heart_index++) {
             this.hearts[heart_index] = new Heart(heartPosition, heartImage, this);
             this.gameObjects().addGameObject(this.hearts[heart_index], Layer.UI);
@@ -138,7 +135,6 @@ public class BrickerGameManager extends GameManager {
         super.update(deltaTime);
         checkIfPlayerWon();
         checkIfGameOver();
-        checkIfWPressed();
     }
 
 
@@ -148,16 +144,10 @@ public class BrickerGameManager extends GameManager {
         return outOfBounds;
     }
 
-
-    private void checkIfWPressed() {
-        if(this.inputListener.isKeyPressed(KeyEvent.VK_W)){
-            openDialog(WIN_PROMPT);
-            this.ball.setCenter(this.ballStartPosition);
-        }
-    }
-
     private void checkIfPlayerWon() {
-        if(this.brickCount.value() <= 0){
+        boolean pressedW = this.inputListener.isKeyPressed(KeyEvent.VK_W);
+        boolean noMoreBricks = this.brickCount.value() <= 0;
+        if(noMoreBricks || pressedW){
             openDialog(WIN_PROMPT);
             this.ball.setCenter(this.ballStartPosition);
         }
@@ -290,7 +280,7 @@ public class BrickerGameManager extends GameManager {
 
     public void removeGameObject(GameObject gameObject, int layer) {
         boolean removedSuccessfully = this.gameObjects().removeGameObject(gameObject, layer);
-        if(removedSuccessfully && gameObject instanceof Brick){
+        if(removedSuccessfully && gameObject.getTag().equals(BRICK_TAG)){
             this.brickCount.decrement();
         }
     }

@@ -6,6 +6,8 @@ import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
 import src.bricker.brick_strategies.CollisionStrategy;
 
+import static src.bricker.utils.Constants.BRICK_TAG;
+
 public class Brick extends GameObject {
     private final CollisionStrategy collisionStrategy;
 
@@ -22,6 +24,7 @@ public class Brick extends GameObject {
                  CollisionStrategy collisionStrategy) {
         super(topLeftCorner, dimensions, renderable);
         this.collisionStrategy = collisionStrategy;
+        this.setTag(BRICK_TAG);
     }
 
     @Override

@@ -46,46 +46,33 @@ public class CollisionStrategyFactory {
     private CollisionStrategy getRandomSpecialStrategy(Counter doubleStrategyCounter) {
         int randomNumber = random.nextInt(5) + 1;
         SpecialStrategies strategyType = SpecialStrategies.fromValue(randomNumber);
-        CollisionStrategy strategy;
-        switch (strategyType) {
-            case SpecialStrategies.PUCK:
-                strategy = new PuckStrategy(this.brickerGameManager, this.imageReader, this.soundReader);
-                break;
+        return switch (strategyType) {
+            case SpecialStrategies.PUCK ->
+                    new PuckStrategy(this.brickerGameManager, this.imageReader, this.soundReader);
+            case SpecialStrategies.EXTRA_PADDLE ->
+                    new ExtraPaddleStrategy(this.brickerGameManager, this.inputListener,
+                            this.imageReader, this.leftBoundary, this.rightBoundary, windowDimensions);
+            case SpecialStrategies.TURBO -> new TurboStrategy(brickerGameManager, imageReader);
+            case SpecialStrategies.EXTRA_LIFE -> new ExtraLifeStrategy(brickerGameManager, imageReader);
+            default -> getDoubleStrategy(doubleStrategyCounter);
+        };
+    }
 
-            case SpecialStrategies.EXTRA_PADDLE:
-                strategy = new ExtraPaddleStrategy(this.brickerGameManager, this.inputListener,
-                    this.imageReader, this.leftBoundary, this.rightBoundary, windowDimensions);
-                break;
-
-            case SpecialStrategies.TURBO:
-                strategy = new TurboStrategy(brickerGameManager, imageReader);
-                break;
-            case SpecialStrategies.EXTRA_LIFE:
-                strategy = new ExtraLifeStrategy(brickerGameManager, imageReader);
-                break;
-
-            default:
-                if(doubleStrategyCounter.value() == 3){
-                    strategy = null;
-                    break;
-                }
-                doubleStrategyCounter.increment();
-                CollisionStrategy strategy1 = getRandomSpecialStrategy(doubleStrategyCounter);
-                CollisionStrategy strategy2 = getRandomSpecialStrategy(doubleStrategyCounter);
-                if(strategy1 == null && strategy2 != null){
-                    strategy = strategy2;
-                    break;
-                }
-                else if(strategy2 == null && strategy1 != null){
-                    strategy = strategy1;
-                    break;
-                }
-                else{
-                    strategy = new DoubleStrategy(brickerGameManager, strategy1, strategy2);
-                    break;
-                }
-
+    private CollisionStrategy getDoubleStrategy(Counter doubleStrategyCounter) {
+        if(doubleStrategyCounter.value() == 3){
+            return null;
         }
-        return strategy;
+        doubleStrategyCounter.increment();
+        CollisionStrategy strategy1 = getRandomSpecialStrategy(doubleStrategyCounter);
+        CollisionStrategy strategy2 = getRandomSpecialStrategy(doubleStrategyCounter);
+        if(strategy1 == null && strategy2 != null){
+            return strategy2;
+        }
+        else if(strategy2 == null && strategy1 != null){
+            return strategy1;
+        }
+        else{
+            return new DoubleStrategy(brickerGameManager, strategy1, strategy2);
+        }
     }
 }

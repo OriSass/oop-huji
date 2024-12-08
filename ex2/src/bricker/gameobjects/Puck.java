@@ -8,6 +8,8 @@ import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
 import src.bricker.main.BrickerGameManager;
 
+import static src.bricker.utils.Constants.PUCK_TAG;
+
 public class Puck extends Ball{
     private final BrickerGameManager brickerGameManager;
 
@@ -25,6 +27,7 @@ public class Puck extends Ball{
                 Sound collisionSound, BrickerGameManager brickerGameManager) {
         super(topLeftCorner, dimensions, renderable, collisionSound);
         this.brickerGameManager = brickerGameManager;
+        this.setTag(PUCK_TAG);
     }
 
     @Override

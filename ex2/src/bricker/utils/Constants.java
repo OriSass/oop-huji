@@ -1,6 +1,10 @@
 package src.bricker.utils;
 
+import danogl.gui.rendering.RectangleRenderable;
+import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
+
+import java.awt.*;
 
 public class Constants {
     // ball
@@ -38,15 +42,22 @@ public class Constants {
     public static final String WIN_PROMPT = "You win! Play again?";
     public static final String LOSE_PROMPT = "You lose! Play again?";
 
-    // ceiling
-    public static final float CEILING_DIMENSION_Y = 5;
-    public static final float CEILING_Y_PADDING = 3;
+
+    // tags
     public static final String PADDLE_TAG = "paddle";
+    public static final String PUCK_TAG = "puck";
+    public static final String BRICK_TAG = "brick";
 
     // wall
-    public static final float WALL_DIMENSION_X = 5;
+    public static final float WALL_DIMENSION_X = 10;
     public static final float WALL_X_PADDING = 3;
     public static final float WALL_Y_PADDING = 10;
+    public static Vector2 LEFT_WALL_START = new Vector2(WALL_X_PADDING, WALL_Y_PADDING);
+
+    // ceiling
+    public static final float CEILING_DIMENSION_Y = 10;
+    public static final float CEILING_Y_PADDING = 3;
+    public static Vector2 CEILING_START = new Vector2(WALL_X_PADDING, CEILING_Y_PADDING);
 
     // game
     public static final String GAME_TITLE = "Bouncing Ball";
@@ -60,7 +71,13 @@ public class Constants {
     public static final Vector2 HEART_DIMENSION = new Vector2(10f, 15f);
     public static final Vector2 FALLING_HEART_VELOCITY = new Vector2(Vector2.ZERO.x(), 100f);
 
+    // renders
+    public static Renderable RECTANGLE_RENDER = new RectangleRenderable(Color.orange);
 
     public static final float EPSILON = 4;
     public static final float HALF = 0.5F;
+
+
+
+
 }
