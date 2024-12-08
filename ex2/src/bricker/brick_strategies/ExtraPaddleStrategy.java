@@ -12,7 +12,7 @@ import src.bricker.main.BrickerGameManager;
 
 import static src.bricker.utils.Constants.*;
 
-public class ExtraPaddleStrategy implements CollisionStrategy {
+public class ExtraPaddleStrategy extends BasicCollisionStrategy {
 
     public static final Counter extraPaddleCounter = new Counter();
     public static final Counter hitCounter = new Counter();
@@ -28,6 +28,7 @@ public class ExtraPaddleStrategy implements CollisionStrategy {
                                UserInputListener inputListener,
                                ImageReader imageReader, float leftBoundary,
                                float rightBoundary, Vector2 windowDimensions) {
+        super(brickerGameManager);
         this.brickerGameManager = brickerGameManager;
         this.inputListener = inputListener;
         this.imageReader = imageReader;
@@ -39,7 +40,7 @@ public class ExtraPaddleStrategy implements CollisionStrategy {
     @Override
     public void onCollision(GameObject gameObject1, GameObject gameObject2) {
         // remove brick
-        this.brickerGameManager.removeGameObject(gameObject1, Layer.STATIC_OBJECTS);
+        super.onCollision(gameObject1, gameObject2);
         addExtraPaddle();
     }
 

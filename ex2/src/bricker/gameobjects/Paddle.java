@@ -24,7 +24,8 @@ public class Paddle extends GameObject {
      * @param inputListener Allows to check what key is pressed for paddle movement
      */
     public Paddle(Vector2 topLeftCorner, Vector2 dimensions,
-                  Renderable renderable, UserInputListener inputListener, float leftBoundary, float rightBoundary) {
+                  Renderable renderable, UserInputListener inputListener,
+                  float leftBoundary, float rightBoundary) {
         super(topLeftCorner, dimensions, renderable);
         this.inputListener = inputListener;
         this.leftBoundary = leftBoundary;

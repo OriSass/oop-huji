@@ -1,6 +1,7 @@
 package src.bricker.brick_strategies;
 
 import danogl.gui.ImageReader;
+import danogl.gui.SoundReader;
 import danogl.gui.UserInputListener;
 import danogl.util.Counter;
 import danogl.util.Vector2;
@@ -17,16 +18,18 @@ public class CollisionStrategyFactory {
     float rightBoundary;
     UserInputListener inputListener;
     ImageReader imageReader;
+    private final SoundReader soundReader;
     Vector2 windowDimensions;
 
     public CollisionStrategyFactory(BrickerGameManager brickerGameManager, float leftBoundary,
                                     float rightBoundary, UserInputListener inputListener,
-                                    ImageReader imageReader, Vector2 windowDimensions) {
+                                    ImageReader imageReader, SoundReader soundReader, Vector2 windowDimensions) {
         this.brickerGameManager = brickerGameManager;
         this.leftBoundary = leftBoundary;
         this.rightBoundary = rightBoundary;
         this.inputListener = inputListener;
         this.imageReader = imageReader;
+        this.soundReader = soundReader;
         this.windowDimensions = windowDimensions;
     }
 
@@ -46,12 +49,12 @@ public class CollisionStrategyFactory {
         CollisionStrategy strategy;
         switch (strategyType) {
             case SpecialStrategies.PUCK:
-                strategy = new PuckStrategy(brickerGameManager);
+                strategy = new PuckStrategy(this.brickerGameManager, this.imageReader, this.soundReader);
                 break;
 
             case SpecialStrategies.EXTRA_PADDLE:
-                strategy = new ExtraPaddleStrategy(brickerGameManager, inputListener,
-                    imageReader, leftBoundary, rightBoundary, windowDimensions);
+                strategy = new ExtraPaddleStrategy(this.brickerGameManager, this.inputListener,
+                    this.imageReader, this.leftBoundary, this.rightBoundary, windowDimensions);
                 break;
 
             case SpecialStrategies.TURBO:

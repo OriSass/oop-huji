@@ -30,4 +30,14 @@ public class Heart extends GameObject {
             this.brickerGameManager.updateLives();
         }
     }
+
+    @Override
+    public void update(float deltaTime) {
+        super.update(deltaTime);
+        if(!this.getVelocity().isZero()){
+            if(this.brickerGameManager.isOutOfBounds(this.getCenter())){
+                this.brickerGameManager.removeGameObject(this, Layer.DEFAULT);
+            }
+        }
+    }
 }

@@ -1,0 +1,118 @@
+ori.sass,zivbengigi
+206789182,314750795
+
+Question 1:
+    We chose the second strategy, leaving the responsibility
+    to add and remove game objects to the brick game manager.
+
+    Pros:
+
+        A)  Centralized Responsibility (Single Responsibility Principle):
+            By delegating the responsibility for adding and deleting game objects
+            to the BrickerGameManager, you keep game object management in one place.
+            This simplifies debugging and ensures consistency in how objects are handled
+            throughout the game.
+
+        B)  Encapsulation:
+            Exposing only the necessary public methods in BrickerGameManager for managing
+            objects keeps the internal implementation of object management hidden, aligning
+            with encapsulation principles.
+
+        C)  Reusability and Scalability:
+            Other classes or strategies can leverage the public methods of BrickerGameManager,
+            making the system more modular. If you later want to add new features or manage objects
+            differently, you only need to modify BrickerGameManager.
+
+        D)  Extensibility:
+            Since BrickerGameManager becomes the centralized place for handling object lifecycle
+            management, it can be easily extended to include additional functionality like logging,
+            object pooling, or custom rules for adding/deleting objects.
+
+        E)  Consistency Across Strategies:
+            If you have multiple collision strategies or other game components, having all of them
+            rely on BrickerGameManager for object management ensures consistent behavior.
+
+    Cons:
+        A)  Increased Coupling:
+            BasicCollisionStrategy becomes tightly coupled with BrickerGameManager. If you later want
+            to reuse BasicCollisionStrategy in a different context or game without BrickerGameManager,
+            it would require significant refactoring.
+
+        B)  Complexity in BrickerGameManager:
+            Adding methods to manage objects directly in BrickerGameManager can increase its complexity,
+            potentially violating the Single Responsibility Principle for that class.
+
+        C)  Reduced Flexibility in Strategy Design:
+            The strategy pattern often benefits from minimal dependencies. Adding a dependency on
+            BrickerGameManager means your collision strategy is no longer self-contained,
+            which can limit its flexibility.
+
+        D)  Overhead in Public API:
+            Adding public methods to BrickerGameManager specifically for the needs of BasicCollisionStrategy
+            may expose operations that other parts of the system don’t need, potentially leading to misuse.
+
+        E)  Testing Challenges:
+            Unit testing the BasicCollisionStrategy becomes more difficult because it requires a
+            BrickerGameManager instance. You might need to create mocks or stubs, which adds
+            complexity to the test setup.
+
+Question 2:
+    For graphic and numeral life representation, i used hearts in the bottom left side of the screen
+    and a number in color in the bottom right.
+    Added classes:
+    Heart - represent's a single life, at the bottom left a row of hearts os rendered, and updated
+        to keep up to date with current life count
+
+Question 3:
+    Extra Paddle Strategy -
+        Adds an extra paddle mid screen. Holds 2 static counters: one counting the number of extra paddles,
+        and one that counts the hits the extra paddle took. after the the paddle hit 6 times
+        (as prescribed in the instructions), the extra paddle disappears and the counters reset.
+
+        Classes used: CollisionStrategyFactory, ExtraPaddleStrategy, ExtraPaddle, BrickerGameManager.
+
+    Extra Life Strategy -
+        Adds a falling heart that start's from the center of the disappearing brick.
+        The heart can be "collected" only by the main paddle, this is implemented by shouldCollideWith
+        and a specific tag that the main paddle has and the extra's don't.
+
+        When collected, the graphic and numeric representation of lives is updated.
+        If not collected or the user has the max lives, the heart keeps moving down,
+        no matter if the paddle is present or not.
+
+        Each moving heart that falls from a brick check's on update if he is out of the screen and
+        then removes itself from the screen using bricker game manager.
+
+        Classes used: CollisionStrategyFactory, ExtraLifeStrategy, Heart, BrickerGameManager
+
+    Puck Strategy-
+        Adds 2 small balls that have a random upper velocity, and can collide
+        with everything (including bricks).
+        They can exit the screen, in that case the bricker game manager removes them with the same
+        out of bounds checks like in the falling hearts.
+
+        Classes used: CollisionStrategyFactory, PuckStrategy, Puck, BrickerGameManager
+
+    Turbo Strategy-
+        The main ball changes looks to a red ball, and moves faster.
+        After a specific number of hits go's back to normal.
+        When turbo is activated, the ball hit counter is reset,
+        and on each hit it's incremented and compared to the max hit.
+        If we got there we restore the ball's original looks and speed.
+
+        Classes used: CollisionStrategyFactory, TurboStrategy, Ball, BrickerGameManager
+
+Question 4:
+    First of all the constraint of 3 double strategies is implemented by a counter that is
+    passed as a parameter to a recursive method of the factory (getRandomSpecialStrategy),
+    and incremented each time the random special strategy is double.
+
+    The Double Strategy itself recieves in it's constructor 2 Strategies and on collide calls them both.
+    The getRandomSpecialStrategy checks what exactly in needs to return and if 1 of the new strategies
+    is null because of the recursive nature and the depth constraint.
+    The recursive method return's one of the strategies or both of them in a DoubleStrategy instance.
+
+    Classes used: CollisionStrategyFactory, DoubleStrategy, BrickerGameManager.
+
+Question 5:
+    I didn't do any API changes to what was made in part 1.
