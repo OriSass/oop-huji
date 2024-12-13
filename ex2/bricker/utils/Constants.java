@@ -1,4 +1,4 @@
-package src.bricker.utils;
+package bricker.utils;
 
 import danogl.gui.rendering.RectangleRenderable;
 import danogl.gui.rendering.Renderable;
@@ -30,14 +30,14 @@ public class Constants {
     public static final float TURBO_SPEED_FACTOR = 1.4f;
 
     // paths
-    public static final String PADDLE_IMAGE_PATH = "src/assets/paddle.png";
-    public static final String BACKGROUND_IMAGE_PATH = "src/assets/DARK_BG2_small.jpeg";
-    public static final String BRICK_IMAGE_PATH = "src/assets/brick.png";
-    public static final String BALL_IMAGE_PATH = "src/assets/ball.png";
-    public static final String BALL_COLLISION_SOUND_PATH = "src/assets/blop.wav";
-    public static final String HEART_IMAGE_PATH = "src/assets/heart.png";
-    public static final String PUCK_IMAGE_PATH = "src/assets/mockBall.png";
-    public static final String TURBO_BALL_IMAGE_PATH = "src/assets/redball.png";
+    public static final String PADDLE_IMAGE_PATH = "assets/paddle.png";
+    public static final String BACKGROUND_IMAGE_PATH = "assets/DARK_BG2_small.jpeg";
+    public static final String BRICK_IMAGE_PATH = "assets/brick.png";
+    public static final String BALL_IMAGE_PATH = "assets/ball.png";
+    public static final String BALL_COLLISION_SOUND_PATH = "assets/blop.wav";
+    public static final String HEART_IMAGE_PATH = "assets/heart.png";
+    public static final String PUCK_IMAGE_PATH = "assets/mockBall.png";
+    public static final String TURBO_BALL_IMAGE_PATH = "assets/redball.png";
 
     // prompts
     public static final String WIN_PROMPT = "You win! Play again?";

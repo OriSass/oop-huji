@@ -1,4 +1,4 @@
-package src.bricker.brick_strategies;
+package bricker.brick_strategies;
 
 import danogl.GameObject;
 import danogl.collisions.Layer;
@@ -7,10 +7,10 @@ import danogl.gui.UserInputListener;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Counter;
 import danogl.util.Vector2;
-import src.bricker.gameobjects.ExtraPaddle;
-import src.bricker.main.BrickerGameManager;
+import bricker.gameobjects.ExtraPaddle;
+import bricker.main.BrickerGameManager;
 
-import static src.bricker.utils.Constants.*;
+import static bricker.utils.Constants.*;
 
 /**
  * A collision strategy that adds an extra paddle to the game.

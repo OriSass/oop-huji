@@ -1,13 +1,13 @@
-package src.bricker.gameobjects;
+package bricker.gameobjects;
 
 import danogl.GameObject;
 import danogl.collisions.Collision;
 import danogl.collisions.Layer;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
-import src.bricker.main.BrickerGameManager;
+import bricker.main.BrickerGameManager;
 
-import static src.bricker.utils.Constants.*;
+import static bricker.utils.Constants.*;
 
 /**
  * Represents a heart in the game.

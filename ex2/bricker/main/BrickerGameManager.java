@@ -1,4 +1,4 @@
-package src.bricker.main;
+package bricker.main;
 
 import danogl.GameManager;
 import danogl.GameObject;
@@ -8,16 +8,16 @@ import danogl.gui.rendering.Renderable;
 import danogl.gui.rendering.TextRenderable;
 import danogl.util.Counter;
 import danogl.util.Vector2;
-import src.bricker.brick_strategies.CollisionStrategy;
-import src.bricker.brick_strategies.CollisionStrategyFactory;
-import src.bricker.brick_strategies.ExtraPaddleStrategy;
-import src.bricker.gameobjects.*;
+import bricker.brick_strategies.CollisionStrategy;
+import bricker.brick_strategies.CollisionStrategyFactory;
+import bricker.brick_strategies.ExtraPaddleStrategy;
+import bricker.gameobjects.*;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.Random;
 
-import static src.bricker.utils.Constants.*;
+import static bricker.utils.Constants.*;
 
 /**
  * Manages the Bricker game, including creating and managing game objects such as bricks, balls, and walls.

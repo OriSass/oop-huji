@@ -1,4 +1,4 @@
-package src.bricker.gameobjects;
+package bricker.gameobjects;
 
 import danogl.GameObject;
 import danogl.collisions.Collision;
@@ -7,7 +7,7 @@ import danogl.gui.UserInputListener;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Counter;
 import danogl.util.Vector2;
-import src.bricker.main.BrickerGameManager;
+import bricker.main.BrickerGameManager;
 
 /**
  * Represents an extra paddle in the game.

@@ -1,4 +1,4 @@
-package src.bricker.gameobjects;
+package bricker.gameobjects;
 
 import danogl.GameObject;
 import danogl.collisions.Collision;
@@ -7,7 +7,7 @@ import danogl.gui.rendering.Renderable;
 import danogl.util.Counter;
 import danogl.util.Vector2;
 
-import static src.bricker.utils.Constants.TURBO_SPEED_FACTOR;
+import static bricker.utils.Constants.TURBO_SPEED_FACTOR;
 
 /**
  * Represents a ball in the game.

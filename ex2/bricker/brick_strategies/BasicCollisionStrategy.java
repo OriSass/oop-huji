@@ -1,8 +1,8 @@
-package src.bricker.brick_strategies;
+package bricker.brick_strategies;
 
 import danogl.GameObject;
 import danogl.collisions.Layer;
-import src.bricker.main.BrickerGameManager;
+import bricker.main.BrickerGameManager;
 
 /**
  * Basic collision strategy for bricks.

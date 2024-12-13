@@ -1,14 +1,14 @@
-package src.bricker.brick_strategies;
+package bricker.brick_strategies;
 
 import danogl.GameObject;
 import danogl.collisions.Layer;
 import danogl.gui.ImageReader;
 import danogl.gui.rendering.Renderable;
-import src.bricker.gameobjects.Heart;
-import src.bricker.main.BrickerGameManager;
+import bricker.gameobjects.Heart;
+import bricker.main.BrickerGameManager;
 
-import static src.bricker.utils.Constants.FALLING_HEART_VELOCITY;
-import static src.bricker.utils.Constants.HEART_IMAGE_PATH;
+import static bricker.utils.Constants.FALLING_HEART_VELOCITY;
+import static bricker.utils.Constants.HEART_IMAGE_PATH;
 
 /**
  * A collision strategy that adds an extra life to the game.

@@ -1,7 +1,7 @@
-package src.bricker.brick_strategies;
+package bricker.brick_strategies;
 
 import danogl.GameObject;
-import src.bricker.main.BrickerGameManager;
+import bricker.main.BrickerGameManager;
 
 /**
  * A collision strategy that combines two different strategies.

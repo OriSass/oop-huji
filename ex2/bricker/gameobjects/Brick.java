@@ -1,12 +1,12 @@
-package src.bricker.gameobjects;
+package bricker.gameobjects;
 
 import danogl.GameObject;
 import danogl.collisions.Collision;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
-import src.bricker.brick_strategies.CollisionStrategy;
+import bricker.brick_strategies.CollisionStrategy;
 
-import static src.bricker.utils.Constants.BRICK_TAG;
+import static bricker.utils.Constants.BRICK_TAG;
 
 /**
  * Represents a brick in the game.

@@ -1,4 +1,4 @@
-package src.bricker.brick_strategies;
+package bricker.brick_strategies;
 
 import danogl.GameObject;
 import danogl.collisions.Layer;
@@ -7,12 +7,12 @@ import danogl.gui.Sound;
 import danogl.gui.SoundReader;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
-import src.bricker.gameobjects.Puck;
-import src.bricker.main.BrickerGameManager;
+import bricker.gameobjects.Puck;
+import bricker.main.BrickerGameManager;
 
 import java.util.Random;
 
-import static src.bricker.utils.Constants.*;
+import static bricker.utils.Constants.*;
 
 /**
  * A collision strategy that creates multiple pucks when a collision occurs.

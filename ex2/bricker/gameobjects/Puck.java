@@ -1,4 +1,4 @@
-package src.bricker.gameobjects;
+package bricker.gameobjects;
 
 import danogl.GameObject;
 import danogl.collisions.Collision;
@@ -6,9 +6,9 @@ import danogl.collisions.Layer;
 import danogl.gui.Sound;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
-import src.bricker.main.BrickerGameManager;
+import bricker.main.BrickerGameManager;
 
-import static src.bricker.utils.Constants.PUCK_TAG;
+import static bricker.utils.Constants.PUCK_TAG;
 
 /**
  * Represents a puck in the game.

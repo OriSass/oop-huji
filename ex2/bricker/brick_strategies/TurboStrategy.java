@@ -1,12 +1,12 @@
-package src.bricker.brick_strategies;
+package bricker.brick_strategies;
 
 import danogl.GameObject;
 import danogl.gui.ImageReader;
 import danogl.gui.rendering.Renderable;
-import src.bricker.gameobjects.Ball;
-import src.bricker.main.BrickerGameManager;
+import bricker.gameobjects.Ball;
+import bricker.main.BrickerGameManager;
 
-import static src.bricker.utils.Constants.*;
+import static bricker.utils.Constants.*;
 
 /**
  * A collision strategy that enables turbo mode for the ball.

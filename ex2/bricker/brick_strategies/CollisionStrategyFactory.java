@@ -1,14 +1,14 @@
-package src.bricker.brick_strategies;
+package bricker.brick_strategies;
 
 import danogl.gui.ImageReader;
 import danogl.gui.SoundReader;
 import danogl.gui.UserInputListener;
 import danogl.util.Counter;
 import danogl.util.Vector2;
-import src.bricker.main.BrickerGameManager;
+import bricker.main.BrickerGameManager;
 import java.util.Random;
 
-import static src.bricker.utils.Constants.DOUBLE_STRATEGY_LIMIT;
+import static bricker.utils.Constants.DOUBLE_STRATEGY_LIMIT;
 
 /**
  * Factory for creating collision strategies for bricks.
