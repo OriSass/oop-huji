@@ -8,6 +8,8 @@ public class SubImgCharMatcher {
     private static final int DEFAULT_RESOLUTION = 16;
     private TreeMap<Double, TreeSet<Character>> brightnessToCharTree;
     private TreeMap<Double, TreeSet<Character>> normalizedBrightnessToCharTree;
+    private double minBrightness;
+    private double maxBrightness;
 
     public SubImgCharMatcher(char[] charset){
         initBrightnessMap(charset);
@@ -16,9 +18,7 @@ public class SubImgCharMatcher {
     private void initBrightnessMap(char[] charset) {
         brightnessToCharTree = new TreeMap<>();
         for (char character : charset) {
-            boolean[][] charBooleanArr = CharConverter.convertToBoolArray(character);
-            int whiteCells = countWhiteCells(charBooleanArr);
-            Double brightness = (double)whiteCells / (double)DEFAULT_RESOLUTION;
+            Double brightness = calculateBrightnessByChar(character);
             assert brightnessToCharTree != null;
             if(brightnessToCharTree.containsKey(brightness)){
                 brightnessToCharTree.get(brightness).add(character);
@@ -32,17 +32,24 @@ public class SubImgCharMatcher {
         initNormalizedBrightnessMap();
     }
 
+    private Double calculateBrightnessByChar(char character) {
+        boolean[][] charBooleanArr = CharConverter.convertToBoolArray(character);
+        int whiteCells = countWhiteCells(charBooleanArr);
+        return (double)whiteCells / (double)DEFAULT_RESOLUTION;
+    }
+
     private void initNormalizedBrightnessMap() {
         normalizedBrightnessToCharTree = new TreeMap<>();
-        double minBrightness = getMinBrightness();
-        double maxBrightness = getMaxBrightness();
+        this.minBrightness = calculateMinBrightness();
+        this.maxBrightness = calculateMaxBrightness();
         for (Double brightness : brightnessToCharTree.keySet()) {
-            double normalizedBrightness = (brightness - minBrightness) / (maxBrightness - minBrightness);
+            double normalizedBrightness = (brightness - this.minBrightness) /
+                    (this.maxBrightness - this.minBrightness);
             normalizedBrightnessToCharTree.put(normalizedBrightness, brightnessToCharTree.get(brightness));
         }
     }
 
-    private double getMaxBrightness() {
+    private double calculateMaxBrightness() {
         double maxBrightness = 0;
         for (Double brightness : brightnessToCharTree.keySet()) {
             if(brightness > maxBrightness){
@@ -52,7 +59,7 @@ public class SubImgCharMatcher {
         return maxBrightness;
     }
 
-    private double getMinBrightness() {
+    private double calculateMinBrightness() {
         double minBrightness = 1;
         for (Double brightness : brightnessToCharTree.keySet()) {
             if(brightness < minBrightness){
@@ -75,14 +82,65 @@ public class SubImgCharMatcher {
     }
 
     public char getCharByImageBrightness(double brightness){
-        return ' ';
+
+        if(normalizedBrightnessToCharTree.containsKey(brightness)){
+            return normalizedBrightnessToCharTree.get(brightness).first();
+        }
+        else{
+            Double lowerBrightness = normalizedBrightnessToCharTree.lowerKey(brightness);
+            Double higherBrightness = normalizedBrightnessToCharTree.higherKey(brightness);
+            if(lowerBrightness == null){
+                return normalizedBrightnessToCharTree.get(higherBrightness).first();
+            }
+            if(higherBrightness == null){
+                return normalizedBrightnessToCharTree.get(lowerBrightness).first();
+            }
+            if(brightness - lowerBrightness < higherBrightness - brightness){
+                return normalizedBrightnessToCharTree.get(lowerBrightness).first();
+            }
+            else{
+                return normalizedBrightnessToCharTree.get(higherBrightness).first();
+            }
+        }
     }
 
     public void addChar(char c){
-
+        double newBrightness = calculateBrightnessByChar(c);
+        boolean barriersChanged = false;
+        if(newBrightness < this.minBrightness){
+            this.minBrightness = newBrightness;
+            barriersChanged = true;
+        }
+        if(newBrightness > this.maxBrightness){
+            this.maxBrightness = newBrightness;
+            barriersChanged = true;
+        }
+        if(brightnessToCharTree.containsKey(newBrightness)){
+            brightnessToCharTree.get(newBrightness).add(c);
+        }
+        else{
+            TreeSet<Character> charSet = new TreeSet<>();
+            charSet.add(c);
+            brightnessToCharTree.put(newBrightness, charSet);
+        }
+        if (barriersChanged){
+            initNormalizedBrightnessMap();
+        }
     }
 
     public void removeChar(char c){
-
+        if (brightnessToCharTree.isEmpty()){
+            return;
+        }
+        Double brightness = calculateBrightnessByChar(c);
+        if(brightnessToCharTree.containsKey(brightness)){
+            brightnessToCharTree.get(brightness).remove(c);
+            if(brightnessToCharTree.get(brightness).isEmpty()){
+                brightnessToCharTree.remove(brightness);
+            }
+            if (brightness == this.minBrightness || brightness == this.maxBrightness){
+                initNormalizedBrightnessMap();
+            }
+        }
     }
 }
