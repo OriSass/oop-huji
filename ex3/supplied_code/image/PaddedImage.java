@@ -38,10 +38,11 @@ public class PaddedImage extends BaseImage{
         this.colPadding = (paddedWidth - width) / 2;
 
         // copy the original picture to the new picture
+        Color[][] pixelArray = this.baseImage.getPixelArray();
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
-                newPixelArray[row + this.rowPadding][col + this.colPadding] =
-                        this.baseImage.getPixelArray()[row][col];
+                Color pixel = pixelArray[row][col];
+                newPixelArray[row + this.rowPadding][col + this.colPadding] = pixel;
             }
         }
         // fill the rest with white

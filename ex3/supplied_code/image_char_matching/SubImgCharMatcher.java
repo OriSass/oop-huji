@@ -1,13 +1,18 @@
 package image_char_matching;
 
+import ascii_art.RoundMethod;
+
+import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class SubImgCharMatcher {
 
-    private static final int DEFAULT_RESOLUTION = 16;
+    private static final int CHAR_RESOLUTION = 16;
     private TreeMap<Double, TreeSet<Character>> brightnessToCharTree;
     private TreeMap<Double, TreeSet<Character>> normalizedBrightnessToCharTree;
+    private List<Character> characters;
     private double minBrightness;
     private double maxBrightness;
 
@@ -35,7 +40,7 @@ public class SubImgCharMatcher {
     private Double calculateBrightnessByChar(char character) {
         boolean[][] charBooleanArr = CharConverter.convertToBoolArray(character);
         int whiteCells = countWhiteCells(charBooleanArr);
-        return (double)whiteCells / (double)DEFAULT_RESOLUTION;
+        return (double)whiteCells / (double) (CHAR_RESOLUTION * CHAR_RESOLUTION);
     }
 
     private void initNormalizedBrightnessMap() {
@@ -47,6 +52,14 @@ public class SubImgCharMatcher {
                     (this.maxBrightness - this.minBrightness);
             normalizedBrightnessToCharTree.put(normalizedBrightness, brightnessToCharTree.get(brightness));
         }
+    }
+
+    private double calculateNormalizedBrightness(Double brightness){
+        this.minBrightness = calculateMinBrightness();
+        this.maxBrightness = calculateMaxBrightness();
+
+        return (brightness - this.minBrightness) /
+                (this.maxBrightness - this.minBrightness);
     }
 
     private double calculateMaxBrightness() {
@@ -81,23 +94,39 @@ public class SubImgCharMatcher {
         return whiteCellsCount;
     }
 
-    public char getCharByImageBrightness(double brightness){
+    public char getCharByImageBrightness(double brightness, RoundMethod roundMethod){
 
         if(normalizedBrightnessToCharTree.containsKey(brightness)){
             return normalizedBrightnessToCharTree.get(brightness).first();
         }
         else{
-            Double lowerBrightness = normalizedBrightnessToCharTree.lowerKey(brightness);
-            Double higherBrightness = normalizedBrightnessToCharTree.higherKey(brightness);
-            if(lowerBrightness == null){
-                return normalizedBrightnessToCharTree.get(higherBrightness).first();
-            }
-            if(higherBrightness == null){
-                return normalizedBrightnessToCharTree.get(lowerBrightness).first();
-            }
+            return getClosesBrightnessChar(brightness, roundMethod);
+        }
+    }
+
+    private char getClosesBrightnessChar(double brightness, RoundMethod roundMethod) {
+        Double lowerBrightness = normalizedBrightnessToCharTree.lowerKey(brightness);
+        Double higherBrightness = normalizedBrightnessToCharTree.higherKey(brightness);
+        if(lowerBrightness == null){
+            return normalizedBrightnessToCharTree.get(higherBrightness).first();
+        }
+        if(higherBrightness == null){
+            return normalizedBrightnessToCharTree.get(lowerBrightness).first();
+        }
+        if(roundMethod == RoundMethod.MIN){
+            return normalizedBrightnessToCharTree.get(lowerBrightness).first();
+        }
+        else if(roundMethod == RoundMethod.MAX){
+            return normalizedBrightnessToCharTree.get(higherBrightness).first();
+        }
+        else{
+            // ABS
+
+            // if closer to upper value
             if(brightness - lowerBrightness < higherBrightness - brightness){
                 return normalizedBrightnessToCharTree.get(lowerBrightness).first();
             }
+            // else closer to lower value
             else{
                 return normalizedBrightnessToCharTree.get(higherBrightness).first();
             }
@@ -107,14 +136,19 @@ public class SubImgCharMatcher {
     public void addChar(char c){
         double newBrightness = calculateBrightnessByChar(c);
         boolean barriersChanged = false;
-        if(newBrightness < this.minBrightness){
-            this.minBrightness = newBrightness;
-            barriersChanged = true;
+        // add to tree
+        addCharToBrightnessTree(c, newBrightness);
+
+        // if boundaries changed - recalculate normalized tree
+        if(updateBounds(newBrightness)){
+            initNormalizedBrightnessMap();
         }
-        if(newBrightness > this.maxBrightness){
-            this.maxBrightness = newBrightness;
-            barriersChanged = true;
-        }
+        // else just add char to normalized tree
+        double normalizedBrightness = calculateNormalizedBrightness(newBrightness);
+        normalizedBrightnessToCharTree.put(normalizedBrightness, brightnessToCharTree.get(newBrightness));
+    }
+
+    private void addCharToBrightnessTree(char c, double newBrightness) {
         if(brightnessToCharTree.containsKey(newBrightness)){
             brightnessToCharTree.get(newBrightness).add(c);
         }
@@ -123,9 +157,18 @@ public class SubImgCharMatcher {
             charSet.add(c);
             brightnessToCharTree.put(newBrightness, charSet);
         }
-        if (barriersChanged){
-            initNormalizedBrightnessMap();
+    }
+
+    private boolean updateBounds(double newBrightness) {
+        if(newBrightness < this.minBrightness){
+            this.minBrightness = newBrightness;
+            return true;
         }
+        if(newBrightness > this.maxBrightness){
+            this.maxBrightness = newBrightness;
+            return true;
+        }
+        return false;
     }
 
     public void removeChar(char c){
@@ -141,6 +184,24 @@ public class SubImgCharMatcher {
             if (brightness == this.minBrightness || brightness == this.maxBrightness){
                 initNormalizedBrightnessMap();
             }
+            else{
+                double normalBrightness = calculateNormalizedBrightness(brightness);
+                if(normalizedBrightnessToCharTree.containsKey(normalBrightness)){
+                    normalizedBrightnessToCharTree.get(normalBrightness).remove(c);
+                    if(normalizedBrightnessToCharTree.get(normalBrightness).isEmpty()){
+                        normalizedBrightnessToCharTree.remove(normalBrightness);
+                    }
+                }
+            }
         }
+    }
+
+    public char[] getChars() {
+        return normalizedBrightnessToCharTree.values().stream()
+                .flatMap(TreeSet::stream)
+                .sorted()
+                .map(Object::toString)
+                .collect(Collectors.joining())
+                .toCharArray();
     }
 }
