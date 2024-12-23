@@ -154,7 +154,8 @@ public class SubImgCharMatcher {
     }
 
     /**
-     * Gets the character that best matches the specified image brightness using the specified rounding method.
+     * Gets the character that best matches the specified image brightness using the specified
+     * rounding method.
      *
      * @param brightness the brightness of the image
      * @param roundMethod the rounding method to use
@@ -171,7 +172,8 @@ public class SubImgCharMatcher {
     }
 
     /**
-     * Gets the character that is closest to the specified brightness value using the specified rounding method.
+     * Gets the character that is closest to the specified brightness value using the specified
+     * rounding method.
      *
      * @param brightness the brightness value to match
      * @param roundMethod the rounding method to use

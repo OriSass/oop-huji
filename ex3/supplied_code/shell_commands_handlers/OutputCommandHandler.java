@@ -6,7 +6,8 @@ import ascii_output.HtmlAsciiOutput;
 import exceptions.IncorrectFormatException;
 
 /**
- * The OutputCommandHandler class handles the "output" command for changing the output method of the AsciiArtAlgorithm.
+ * The OutputCommandHandler class handles the "output" command for changing the output method
+ * of the AsciiArtAlgorithm.
  */
 public class OutputCommandHandler implements ShellCommandHandler {
 

@@ -5,7 +5,8 @@ import ascii_art.AsciiArtAlgorithm;
 import java.util.Arrays;
 
 /**
- * The CharsCommandHandler class handles the "chars" command for printing the character set used by the AsciiArtAlgorithm.
+ * The CharsCommandHandler class handles the "chars" command for printing the character set
+ * used by the AsciiArtAlgorithm.
  */
 public class CharsCommandHandler implements ShellCommandHandler {
 

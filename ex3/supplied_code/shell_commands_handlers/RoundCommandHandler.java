@@ -5,7 +5,8 @@ import ascii_art.RoundMethod;
 import exceptions.IncorrectFormatException;
 
 /**
- * The RoundCommandHandler class handles the "round" command for changing the rounding method of the AsciiArtAlgorithm.
+ * The RoundCommandHandler class handles the "round" command for changing the rounding
+ * method of the AsciiArtAlgorithm.
  */
 public class RoundCommandHandler implements ShellCommandHandler {
 

@@ -4,7 +4,8 @@ import ascii_art.AsciiArtAlgorithm;
 import exceptions.IncorrectFormatException;
 
 /**
- * The RemoveCommandHandler class handles the "remove" command for removing characters from the AsciiArtAlgorithm.
+ * The RemoveCommandHandler class handles the "remove" command for removing characters
+ * from the AsciiArtAlgorithm.
  */
 public class RemoveCommandHandler implements ShellCommandHandler {
 

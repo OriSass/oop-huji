@@ -120,7 +120,8 @@ public class PaddedImage extends BaseImage{
     }
 
     /**
-     * Gets a sub-image of the padded image starting at the specified coordinates with the specified side length.
+     * Gets a sub-image of the padded image starting at the specified coordinates with the
+     * specified side length.
      *
      * @param yStart the starting row coordinate of the sub-image
      * @param xStart the starting column coordinate of the sub-image

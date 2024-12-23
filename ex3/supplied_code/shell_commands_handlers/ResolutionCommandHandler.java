@@ -5,7 +5,8 @@ import exceptions.IncorrectFormatException;
 import exceptions.OutOfBoundsException;
 
 /**
- * The ResolutionCommandHandler class handles the "resolution" command for changing the resolution of the AsciiArtAlgorithm.
+ * The ResolutionCommandHandler class handles the "resolution" command for
+ * changing the resolution of the AsciiArtAlgorithm.
  */
 public class ResolutionCommandHandler implements ShellCommandHandler {
 

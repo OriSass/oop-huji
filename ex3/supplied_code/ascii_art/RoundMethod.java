@@ -1,7 +1,8 @@
 package ascii_art;
 
 /**
- * The RoundMethod enum represents the different rounding methods that can be used in the ASCII art algorithm.
+ * The RoundMethod enum represents the different rounding methods that can be used in the
+ * ASCII art algorithm.
  */
 public enum RoundMethod {
     /**
