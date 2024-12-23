@@ -2,6 +2,11 @@ package image;
 
 import java.awt.*;
 
+/**
+ * The PaddedImage class represents an image that has been padded to the nearest power of two dimensions.
+ * This class extends the BaseImage class and provides methods to get the padded image dimensions,
+ * pixel colors, and sub-images.
+ */
 public class PaddedImage extends BaseImage{
 
 
@@ -14,11 +19,19 @@ public class PaddedImage extends BaseImage{
     private Color[][] pixelArray;
 
 
+    /**
+     * Constructs a PaddedImage instance from a base image.
+     *
+     * @param baseImage the base image to pad
+     */
     public PaddedImage(BaseImage baseImage) {
         this.baseImage = baseImage;
         padPicture();
     }
 
+    /**
+     * Pads the base image to the nearest power of two dimensions.
+     */
     private void padPicture(){
 
         int width = this.baseImage.getWidth();
@@ -56,21 +69,44 @@ public class PaddedImage extends BaseImage{
         this.pixelArray = newPixelArray;
     }
 
+    /**
+     * Gets the width of the padded image.
+     *
+     * @return the width of the padded image
+     */
     @Override
     public int getWidth() {
         return paddedWidth;
     }
 
+    /**
+     * Gets the height of the padded image.
+     *
+     * @return the height of the padded image
+     */
     @Override
     public int getHeight() {
         return paddedHeight;
     }
 
+    /**
+     * Gets the pixel color at the specified coordinates.
+     *
+     * @param x the row coordinate of the pixel
+     * @param y the column coordinate of the pixel
+     * @return the color of the pixel at the specified coordinates
+     */
     @Override
     public Color getPixel(int x, int y) {
         return this.pixelArray[x][y];
     }
 
+    /**
+     * Gets the sub-images of the padded image with the specified resolution.
+     *
+     * @param resolution the resolution of the sub-images
+     * @return a 2D array of sub-images
+     */
     public Image[][] getSubImages(int resolution){
         int subImageSide = this.paddedWidth / resolution;
         int subImageRows = this.paddedHeight / subImageSide;
@@ -83,6 +119,14 @@ public class PaddedImage extends BaseImage{
         return subImages;
     }
 
+    /**
+     * Gets a sub-image of the padded image starting at the specified coordinates with the specified side length.
+     *
+     * @param yStart the starting row coordinate of the sub-image
+     * @param xStart the starting column coordinate of the sub-image
+     * @param side the side length of the sub-image
+     * @return the sub-image
+     */
     public Image getSubImage(int yStart, int xStart, int side){
         Color[][] subImagePixelArray = new Color[side][side];
         for (int row = 0; row < side; row++) {

@@ -2,6 +2,10 @@ package image;
 
 import java.awt.*;
 
+/**
+ * The BaseImage class provides an abstract representation of an image.
+ * It includes methods to get the image dimensions, pixel colors, and calculate the image brightness.
+ */
 public abstract class BaseImage {
 
     private static final double RED_GRAY_WEIGHT = 0.2126;

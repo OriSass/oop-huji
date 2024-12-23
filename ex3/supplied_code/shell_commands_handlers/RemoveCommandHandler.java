@@ -3,16 +3,31 @@ package shell_commands_handlers;
 import ascii_art.AsciiArtAlgorithm;
 import exceptions.IncorrectFormatException;
 
+/**
+ * The RemoveCommandHandler class handles the "remove" command for removing characters from the AsciiArtAlgorithm.
+ */
 public class RemoveCommandHandler implements ShellCommandHandler {
 
-    private static final String REMOVE_INCORRECT_FORMAT_MSG = "Did not remove due to incorrect format.";
+    /**
+     * The AsciiArtAlgorithm instance from which characters will be removed.
+     */
     private final AsciiArtAlgorithm algorithm;
 
+    /**
+     * Constructs a RemoveCommandHandler with the specified AsciiArtAlgorithm.
+     *
+     * @param algorithm the AsciiArtAlgorithm instance to use
+     */
     public RemoveCommandHandler(AsciiArtAlgorithm algorithm) {
         this.algorithm = algorithm;
     }
 
-
+    /**
+     * Handles the "remove" command with the specified parameter.
+     *
+     * @param param the parameter for the "remove" command
+     * @throws Exception if an error occurs while handling the command
+     */
     @Override
     public void handleCommand(String param) throws Exception {
         if(param == null) {
@@ -41,6 +56,11 @@ public class RemoveCommandHandler implements ShellCommandHandler {
 
     }
 
+    /**
+     * Removes characters in the specified range from the AsciiArtAlgorithm.
+     *
+     * @param param the range parameter in the format "a-z"
+     */
     private void removeCharsInRange(String param) {
         String[] range = param.split("-");
         if (range.length != 2) {
@@ -57,6 +77,9 @@ public class RemoveCommandHandler implements ShellCommandHandler {
         }
     }
 
+    /**
+     * Removes all printable ASCII characters from the AsciiArtAlgorithm.
+     */
     private void removeAllChars() {
         for (char c = ' '; c <= '~'; c++) {
             this.algorithm.removeChar(c);

@@ -2,24 +2,52 @@ package image_char_matching;
 
 import ascii_art.RoundMethod;
 
-import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+/**
+ * The SubImgCharMatcher class matches sub-images to characters based on their brightness.
+ * It maintains a mapping of brightness values to characters and provides methods to add, remove,
+ * and retrieve characters based on image brightness.
+ */
 public class SubImgCharMatcher {
 
+    /**
+     * The resolution of the character images in pixels.
+     */
     private static final int CHAR_RESOLUTION = 16;
+    /**
+     * A TreeMap that maps brightness values to sets of characters.
+     */
     private TreeMap<Double, TreeSet<Character>> brightnessToCharTree;
+    /**
+     * A TreeMap that maps normalized brightness values to sets of characters.
+     */
     private TreeMap<Double, TreeSet<Character>> normalizedBrightnessToCharTree;
-    private List<Character> characters;
+    /**
+     * The minimum brightness value in the brightness map.
+     */
     private double minBrightness;
+    /**
+     * The maximum brightness value in the brightness map.
+     */
     private double maxBrightness;
 
+    /**
+     * Constructs a SubImgCharMatcher instance with the specified character set.
+     *
+     * @param charset the character set to use for matching
+     */
     public SubImgCharMatcher(char[] charset){
         initBrightnessMap(charset);
     }
 
+    /**
+     * Initializes the brightness map with the specified character set.
+     *
+     * @param charset the character set to use for initializing the brightness map
+     */
     private void initBrightnessMap(char[] charset) {
         brightnessToCharTree = new TreeMap<>();
         for (char character : charset) {
@@ -37,12 +65,21 @@ public class SubImgCharMatcher {
         initNormalizedBrightnessMap();
     }
 
+    /**
+     * Calculates the brightness of the specified character.
+     *
+     * @param character the character to calculate the brightness for
+     * @return the brightness of the character
+     */
     private Double calculateBrightnessByChar(char character) {
         boolean[][] charBooleanArr = CharConverter.convertToBoolArray(character);
         int whiteCells = countWhiteCells(charBooleanArr);
         return (double)whiteCells / (double) (CHAR_RESOLUTION * CHAR_RESOLUTION);
     }
 
+    /**
+     * Initializes the normalized brightness map.
+     */
     private void initNormalizedBrightnessMap() {
         normalizedBrightnessToCharTree = new TreeMap<>();
         this.minBrightness = calculateMinBrightness();
@@ -54,6 +91,12 @@ public class SubImgCharMatcher {
         }
     }
 
+    /**
+     * Calculates the normalized brightness of the specified brightness value.
+     *
+     * @param brightness the brightness value to normalize
+     * @return the normalized brightness value
+     */
     private double calculateNormalizedBrightness(Double brightness){
         this.minBrightness = calculateMinBrightness();
         this.maxBrightness = calculateMaxBrightness();
@@ -62,6 +105,11 @@ public class SubImgCharMatcher {
                 (this.maxBrightness - this.minBrightness);
     }
 
+    /**
+     * Calculates the maximum brightness value in the brightness map.
+     *
+     * @return the maximum brightness value
+     */
     private double calculateMaxBrightness() {
         double maxBrightness = 0;
         for (Double brightness : brightnessToCharTree.keySet()) {
@@ -72,6 +120,11 @@ public class SubImgCharMatcher {
         return maxBrightness;
     }
 
+    /**
+     * Calculates the minimum brightness value in the brightness map.
+     *
+     * @return the minimum brightness value
+     */
     private double calculateMinBrightness() {
         double minBrightness = 1;
         for (Double brightness : brightnessToCharTree.keySet()) {
@@ -82,6 +135,12 @@ public class SubImgCharMatcher {
         return minBrightness;
     }
 
+    /**
+     * Counts the number of white cells in the specified boolean array.
+     *
+     * @param charBooleanArr the boolean array representing the character image
+     * @return the number of white cells in the array
+     */
     private int countWhiteCells(boolean[][] charBooleanArr) {
         int whiteCellsCount = 0;
         for (int i = 0; i < charBooleanArr.length; i++) {
@@ -94,6 +153,13 @@ public class SubImgCharMatcher {
         return whiteCellsCount;
     }
 
+    /**
+     * Gets the character that best matches the specified image brightness using the specified rounding method.
+     *
+     * @param brightness the brightness of the image
+     * @param roundMethod the rounding method to use
+     * @return the character that best matches the image brightness
+     */
     public char getCharByImageBrightness(double brightness, RoundMethod roundMethod){
 
         if(normalizedBrightnessToCharTree.containsKey(brightness)){
@@ -104,6 +170,13 @@ public class SubImgCharMatcher {
         }
     }
 
+    /**
+     * Gets the character that is closest to the specified brightness value using the specified rounding method.
+     *
+     * @param brightness the brightness value to match
+     * @param roundMethod the rounding method to use
+     * @return the character that is closest to the brightness value
+     */
     private char getClosesBrightnessChar(double brightness, RoundMethod roundMethod) {
         Double lowerBrightness = normalizedBrightnessToCharTree.lowerKey(brightness);
         Double higherBrightness = normalizedBrightnessToCharTree.higherKey(brightness);
@@ -133,6 +206,11 @@ public class SubImgCharMatcher {
         }
     }
 
+    /**
+     * Adds a character to the brightness map.
+     *
+     * @param c the character to add
+     */
     public void addChar(char c){
         double newBrightness = calculateBrightnessByChar(c);
         boolean barriersChanged = false;
@@ -148,6 +226,12 @@ public class SubImgCharMatcher {
         normalizedBrightnessToCharTree.put(normalizedBrightness, brightnessToCharTree.get(newBrightness));
     }
 
+    /**
+     * Adds a character to the brightness tree.
+     *
+     * @param c the character to add
+     * @param newBrightness the brightness of the character
+     */
     private void addCharToBrightnessTree(char c, double newBrightness) {
         if(brightnessToCharTree.containsKey(newBrightness)){
             brightnessToCharTree.get(newBrightness).add(c);
@@ -159,6 +243,12 @@ public class SubImgCharMatcher {
         }
     }
 
+    /**
+     * Updates the brightness bounds if the new brightness value is outside the current bounds.
+     *
+     * @param newBrightness the new brightness value
+     * @return true if the bounds were updated, false otherwise
+     */
     private boolean updateBounds(double newBrightness) {
         if(newBrightness < this.minBrightness){
             this.minBrightness = newBrightness;
@@ -171,6 +261,11 @@ public class SubImgCharMatcher {
         return false;
     }
 
+    /**
+     * Removes a character from the brightness map.
+     *
+     * @param c the character to remove
+     */
     public void removeChar(char c){
         if (brightnessToCharTree.isEmpty()){
             return;
@@ -196,6 +291,11 @@ public class SubImgCharMatcher {
         }
     }
 
+    /**
+     * Gets the characters in the brightness map.
+     *
+     * @return an array of characters in the brightness map
+     */
     public char[] getChars() {
         return normalizedBrightnessToCharTree.values().stream()
                 .flatMap(TreeSet::stream)

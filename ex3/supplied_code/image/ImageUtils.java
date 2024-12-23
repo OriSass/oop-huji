@@ -1,5 +1,8 @@
 package image;
 
+/**
+ * The ImageUtils class provides utility methods for image processing.
+ */
 public class ImageUtils {
 
     /**
