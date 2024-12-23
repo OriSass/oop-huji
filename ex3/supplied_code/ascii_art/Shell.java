@@ -1,11 +1,11 @@
 package ascii_art;
 
+import exceptions.IncorrectCommandException;
 import shell_commands_handlers.*;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
-import static utils.constants.DID_NOT_EXECUTE_DUE_TO_INCORRECT_COMMAND;
+import static utils.Constants.DID_NOT_EXECUTE_DUE_TO_INCORRECT_COMMAND;
 
 public class Shell {
 
@@ -61,10 +61,9 @@ public class Shell {
         }
     }
 
-    private void runCommand(String cmnd, String param) {
+    private void runCommand(String cmnd, String param) throws Exception {
         if(!commandMap.containsKey(cmnd)){
-            System.out.println(DID_NOT_EXECUTE_DUE_TO_INCORRECT_COMMAND);
-            return;
+            throw new IncorrectCommandException(DID_NOT_EXECUTE_DUE_TO_INCORRECT_COMMAND);
         }
         ShellCommandHandler commandHandler = commandMap.get(cmnd);
         commandHandler.handleCommand(param);

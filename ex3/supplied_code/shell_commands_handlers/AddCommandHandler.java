@@ -1,10 +1,9 @@
 package shell_commands_handlers;
 
 import ascii_art.AsciiArtAlgorithm;
+import exceptions.IncorrectFormatException;
 
 public class AddCommandHandler implements ShellCommandHandler {
-
-    private static final String ADD_INCORRECT_FORMAT_MSG = "Did not add due to incorrect format.";
 
     private final AsciiArtAlgorithm algorithm;
 
@@ -13,7 +12,7 @@ public class AddCommandHandler implements ShellCommandHandler {
     }
 
     @Override
-    public void handleCommand(String param) {
+    public void handleCommand(String param) throws Exception{
         if(param == null) {
             return;
         }
@@ -34,16 +33,14 @@ public class AddCommandHandler implements ShellCommandHandler {
                 addCharsInRange(param);
             }
             else{
-                System.out.println(ADD_INCORRECT_FORMAT_MSG);
+                throw new IncorrectFormatException("add");
             }
         }
     }
 
     private void addCharsInRange(String param) {
         String[] range = param.split("-");
-        if (range.length != 2) {
-            return;
-        }
+
         char leftChar = range[0].charAt(0);
         char rightChar = range[1].charAt(0);
 

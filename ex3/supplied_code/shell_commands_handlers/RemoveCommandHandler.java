@@ -1,6 +1,7 @@
 package shell_commands_handlers;
 
 import ascii_art.AsciiArtAlgorithm;
+import exceptions.IncorrectFormatException;
 
 public class RemoveCommandHandler implements ShellCommandHandler {
 
@@ -13,7 +14,7 @@ public class RemoveCommandHandler implements ShellCommandHandler {
 
 
     @Override
-    public void handleCommand(String param) {
+    public void handleCommand(String param) throws Exception {
         if(param == null) {
             return;
         }
@@ -34,7 +35,7 @@ public class RemoveCommandHandler implements ShellCommandHandler {
                 removeCharsInRange(param);
             }
             else{
-                System.out.println(REMOVE_INCORRECT_FORMAT_MSG);
+                throw new IncorrectFormatException("remove");
             }
         }
 

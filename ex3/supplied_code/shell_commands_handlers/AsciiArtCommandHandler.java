@@ -2,7 +2,7 @@ package shell_commands_handlers;
 
 import ascii_art.AsciiArtAlgorithm;
 
-import static utils.constants.DIDNT_EXECUTE_CHARSET_TOO_SMALL;
+import static utils.Constants.DIDNT_EXECUTE_CHARSET_TOO_SMALL;
 
 public class AsciiArtCommandHandler implements ShellCommandHandler {
 
@@ -13,10 +13,9 @@ public class AsciiArtCommandHandler implements ShellCommandHandler {
     }
 
     @Override
-    public void handleCommand(String param) {
+    public void handleCommand(String param) throws Exception {
         if(algorithm.getCharset().length < 2){
-            System.out.println(DIDNT_EXECUTE_CHARSET_TOO_SMALL);
-            return;
+            throw new Exception(DIDNT_EXECUTE_CHARSET_TOO_SMALL);
         }
         char[][] asciiArt = algorithm.run();
         algorithm.getAsciiOutput().out(asciiArt);

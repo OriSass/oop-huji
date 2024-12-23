@@ -14,7 +14,6 @@ public class AsciiArtAlgorithm {
     char[] DEFAULT_CHARSET = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
     int DEFAULT_IMG_RESOLUTION = 2;
 
-    private final String path;
     private char[] charset;
     private int resolution;
     private int minResolution;
@@ -26,7 +25,6 @@ public class AsciiArtAlgorithm {
     private Image image;
 
     public AsciiArtAlgorithm(String path) throws IOException {
-        this.path = path;
         this.charset = DEFAULT_CHARSET;
         this.resolution = DEFAULT_IMG_RESOLUTION;
         this.subImgCharMatcher = new SubImgCharMatcher(charset);

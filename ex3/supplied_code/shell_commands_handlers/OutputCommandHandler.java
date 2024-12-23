@@ -3,9 +3,7 @@ package shell_commands_handlers;
 import ascii_art.AsciiArtAlgorithm;
 import ascii_output.ConsoleAsciiOutput;
 import ascii_output.HtmlAsciiOutput;
-
-import static utils.constants.DID_NOT_CHANGE;
-import static utils.constants.DUE_TO_INCORRECT_FORMAT;
+import exceptions.IncorrectFormatException;
 
 public class OutputCommandHandler implements ShellCommandHandler {
 
@@ -17,24 +15,20 @@ public class OutputCommandHandler implements ShellCommandHandler {
 
 
     @Override
-    public void handleCommand(String param) {
-        try{
-            if(param.isEmpty() || !param.equals("console") && !param.equals("html")){
-                throw new IllegalArgumentException();
+    public void handleCommand(String param) throws Exception {
+        if(param.isEmpty() || !param.equals("console") && !param.equals("html")){
+            throw new IncorrectFormatException("change output method");
+        }
+        if(param.equals("console")){
+            if(!(algorithm.getAsciiOutput() instanceof ConsoleAsciiOutput)){
+                algorithm.setAsciiOutput(new ConsoleAsciiOutput());
             }
-            if(param.equals("console")){
-                if(!(algorithm.getAsciiOutput() instanceof ConsoleAsciiOutput)){
-                    algorithm.setAsciiOutput(new ConsoleAsciiOutput());
-                }
+        }
+        // else html
+        else {
+            if(!(algorithm.getAsciiOutput() instanceof HtmlAsciiOutput)){
+                algorithm.setAsciiOutput(new HtmlAsciiOutput("out.html", "Courier New"));
             }
-            // else html
-            else {
-                if(!(algorithm.getAsciiOutput() instanceof HtmlAsciiOutput)){
-                    algorithm.setAsciiOutput(new HtmlAsciiOutput("out.html", "Courier New"));
-                }
-            }
-        }  catch (IllegalArgumentException e){
-            System.out.println(DID_NOT_CHANGE + "output" + DUE_TO_INCORRECT_FORMAT);
         }
     }
 }

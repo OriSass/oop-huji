@@ -1,0 +1,87 @@
+ori.sass,zivbengigi
+206789182,314750795
+
+Question 1:
+    AsciiArtAlgorithm:
+        The class that runs the main algorithm of converting an image to ascii art.
+
+    Shell class:
+        Is the main class, it has an infinite loop that get's user commands and calls the right handler to change
+        parameters in the ascii art algorithm.
+
+    RoundMethod enum:
+        The enum that represents the different rounding methods that can be used on char brightnesses
+        in the algorithm.
+
+    BaseImage:
+        Is an abstract base image (a 2d array of Color = pixels).
+
+    Image:
+        An implementation of BaseImage, it reads an image from a file and stores it in a 2d array of Color.
+
+    PaddedImage:
+        An implementation of BaseImage, it pads an image with a border of a white cells,
+        so the image could be divided nicely to sub images, of the same size.
+        The padded image has dimensions that are a power of 2.
+
+    ImageUtils:
+        A class that contains a helper function that calculates the next power of 2.
+
+    SubImgCharMatcher:
+        A class that matches a sub image to a char, by calculating the brightness score of the sub image
+        and replacing it with the char that is the most similar in brightness score.
+
+    AddCommandHandler:
+        A class that handles the add command, it adds a new char/s to the ascii art algorithm.
+
+    AsciiArtCommandHandler:
+        Runs the main algorithm of converting an image to ascii art, after all the parameter tweaking.
+
+    CharsCommandHandler:
+        Prints the current char to be used in the algorithm.
+
+    OutputCommandHandler:
+        Allows to change the output type of the algorithm: html file or console.
+
+    RemoveCommandHandler:
+        Removes a char/s from the ascii art algorithm.
+
+    ResolutionCommandHandler:
+        Changes the resolution of the ascii art algorithm.
+
+    RoundMethodCommandHandler:
+        Changes the rounding method of the ascii art algorithm. default is ABS.
+
+    ShellCommandHandler:
+        The interface that all the command handlers implement.
+        Using polymorphism to treat all handlers the same.
+
+    Constants:
+        Contains all the constants used in the program.
+
+Question 2:
+    I used a TreeMap<double, TreeSet<Char>> to store the chars and
+    their brightnesses (regular and normalized).
+
+    The reason for this choice of data structure, is that it allowed me to get the closest char
+    to a brightness in a built in way which is very efficient in space and run time (O(log n)).
+
+    The choice of TreeSet is because i need a char with a certain brightness
+    to appear only once, no duplicates.
+
+Question 3:
+    I used the exception handling mechanism by throwing a specific exception with a specific message,
+    as prescribed in the instruction. The try catch block is in the run method of the shell.
+    As requested. The specific exceptions i throw in my program are:
+    IncorrectCommandException, IncorrectFormatException, OutOfBoundsException, IOException.
+
+Question 4:
+    Changes of SubImgCharMatcher API:
+
+    A)  In getCharByImageBrightness, I added a second parameter of roundMethod, that is passed on from the
+        ascii art algorithm, so the matcher could use it to round the brightness of the sub
+        image in a specific way.
+
+    B) I added another public method: public char[] getChars(), that returns all the chars in the matcher,
+       converting the inner tree set to an array of chars. Mainly used to print current chars in
+       the "chars" command handler.
