@@ -17,6 +17,7 @@ public class SubImgCharMatcher {
      * The resolution of the character images in pixels.
      */
     private static final int CHAR_RESOLUTION = 16;
+    private RoundMethod roundMethod;
     /**
      * A TreeMap that maps brightness values to sets of characters.
      */
@@ -41,6 +42,7 @@ public class SubImgCharMatcher {
      */
     public SubImgCharMatcher(char[] charset){
         initBrightnessMap(charset);
+        this.roundMethod = RoundMethod.ABS;
     }
 
     /**
@@ -158,16 +160,15 @@ public class SubImgCharMatcher {
      * rounding method.
      *
      * @param brightness the brightness of the image
-     * @param roundMethod the rounding method to use
      * @return the character that best matches the image brightness
      */
-    public char getCharByImageBrightness(double brightness, RoundMethod roundMethod){
+    public char getCharByImageBrightness(double brightness){
 
         if(normalizedBrightnessToCharTree.containsKey(brightness)){
             return normalizedBrightnessToCharTree.get(brightness).first();
         }
         else{
-            return getClosesBrightnessChar(brightness, roundMethod);
+            return getClosesBrightnessChar(brightness);
         }
     }
 
@@ -176,10 +177,9 @@ public class SubImgCharMatcher {
      * rounding method.
      *
      * @param brightness the brightness value to match
-     * @param roundMethod the rounding method to use
      * @return the character that is closest to the brightness value
      */
-    private char getClosesBrightnessChar(double brightness, RoundMethod roundMethod) {
+    private char getClosesBrightnessChar(double brightness) {
         Double lowerBrightness = normalizedBrightnessToCharTree.lowerKey(brightness);
         Double higherBrightness = normalizedBrightnessToCharTree.higherKey(brightness);
         if(lowerBrightness == null){
@@ -305,5 +305,14 @@ public class SubImgCharMatcher {
                 .map(Object::toString)
                 .collect(Collectors.joining())
                 .toCharArray();
+    }
+
+    /**
+     * Sets the rounding method used for matching brightness values to characters.
+     *
+     * @param roundMethod the new rounding method to use
+     */
+    public void setRoundMethod(RoundMethod roundMethod) {
+        this.roundMethod = roundMethod;
     }
 }
