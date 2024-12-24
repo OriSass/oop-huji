@@ -14,6 +14,7 @@ import pepse.world.Sky;
 import pepse.world.Terrain;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
+import pepse.world.daynight.SunHalo;
 
 import java.util.List;
 
@@ -40,7 +41,8 @@ public class PepseGameManager extends GameManager {
     private void createSun(WindowController windowController) {
         GameObject sun = Sun.create(windowController.getWindowDimensions(), DEFAULT_DAY_CYCLE_LENGTH);
         createSunTransition(sun, windowController.getWindowDimensions());
-        this.gameObjects().addGameObject(sun, Layer.FOREGROUND);
+        createSunHalo(sun);
+        this.gameObjects().addGameObject(sun, Layer.BACKGROUND);
     }
 
     private void createNight(WindowController windowController) {
@@ -85,6 +87,11 @@ public class PepseGameManager extends GameManager {
                 Transition.LINEAR_INTERPOLATOR_FLOAT,
                 DEFAULT_DAY_CYCLE_LENGTH,
                 Transition.TransitionType.TRANSITION_LOOP, null);
+    }
+
+    private void createSunHalo(GameObject sun) {
+        GameObject sunHalo = SunHalo.create(sun);
+        this.gameObjects().addGameObject(sunHalo, Layer.BACKGROUND);
     }
 
 }

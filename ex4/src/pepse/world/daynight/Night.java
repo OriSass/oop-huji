@@ -7,13 +7,15 @@ import danogl.util.Vector2;
 
 import java.awt.*;
 
+import static pepse.util.Constants.NIGHT_TAG;
+
 public class Night {
 
     public static GameObject create(Vector2 windowDimensions, float cycleLength){
         RectangleRenderable blackRectangleRenderable = new RectangleRenderable(Color.black);
         GameObject night = new GameObject(Vector2.ZERO, windowDimensions, blackRectangleRenderable);
         night.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
-        night.setTag("night");
+        night.setTag(NIGHT_TAG);
         return night;
     }
 }

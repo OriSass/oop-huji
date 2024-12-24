@@ -8,11 +8,13 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static pepse.util.Constants.DEFAULT_BASE_GROUND_COLOR;
+
 public class Terrain {
 
     private final float groundHeightAtX0;
     private final int seed;
-    private static final Color BASE_GROUND_COLOR = new Color(212, 123, 74);
+    private static final Color BASE_GROUND_COLOR = DEFAULT_BASE_GROUND_COLOR;
     private static final int TERRAIN_DEPTH = 20;
 
     public Terrain(Vector2 windowDimensions, int seed){

@@ -9,6 +9,7 @@ import danogl.util.Vector2;
 import java.awt.*;
 
 import static pepse.util.Constants.SUN_DIMENSIONS;
+import static pepse.util.Constants.SUN_TAG;
 
 public class Sun {
 
@@ -18,7 +19,7 @@ public class Sun {
 
         GameObject sun = new GameObject(topLeftCorner, SUN_DIMENSIONS, ovalRenderable);
         sun.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
-        sun.setTag("sun");
+        sun.setTag(SUN_TAG);
 
         return sun;
     }
