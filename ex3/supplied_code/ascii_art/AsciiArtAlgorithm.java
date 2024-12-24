@@ -92,12 +92,12 @@ public class AsciiArtAlgorithm {
         Image[][] subImages = paddedImage.getSubImages(resolution);
         // convert sub images to characters
         char[][] asciiArt = new char[subImages.length][subImages[0].length];
-
+        this.subImgCharMatcher.setRoundMethod(this.roundMethod);
         for (int i = 0; i < subImages.length; i++) {
             for (int j = 0; j < subImages[i].length; j++) {
                 Image currentImage = subImages[i][j];
                 double brightness = currentImage.getImageBrightness();
-                asciiArt[i][j] = this.subImgCharMatcher.getCharByImageBrightness(brightness, roundMethod);
+                asciiArt[i][j] = this.subImgCharMatcher.getCharByImageBrightness(brightness);
             }
         }
         return asciiArt;
