@@ -48,7 +48,7 @@ public class Shell {
     /**
      * The prompt string for user input.
      */
-    private static final String INPUT_ARROWS = ">>>";
+    private static final String INPUT_ARROWS = ">>> ";
 
     /**
      * A map of command strings to their corresponding handlers.
