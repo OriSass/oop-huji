@@ -23,5 +23,19 @@ public class Constants {
     public static final Color DEFAULT_BASE_GROUND_COLOR = new Color(212, 123, 74);
 
 
+    public static final String AVATAR_IMAGE_PATH = "assets/idle_0.png";
+    public static final Vector2 AVATAR_DIMENSIONS = new Vector2(80, 120);
+    public static final float AVATAR_MOVEMENT_SPEED = 300;
+    public static final float AVATAR_JUMP_VELOCITY_Y = -450;
+    public static final float GRAVITY = 600;
+
+    // energy
+    public static final float DEFAULT_ENERGY_MAX = 100f;
+    public static final float JUMP_ENERGY_COST = 10f;
+    public static final float HORIZONTAL_MOVEMENT_ENERGY_COST = 0.5f;
+    public static final float ENERGY_REGENERATION_RATE = 1f;
+    public static final Vector2 ENERGY_DISPLAY_DIMENSIONS = new Vector2(15f, 15f);
+
+
 
 }

@@ -8,7 +8,9 @@ import danogl.gui.ImageReader;
 import danogl.gui.SoundReader;
 import danogl.gui.UserInputListener;
 import danogl.gui.WindowController;
+import danogl.gui.rendering.TextRenderable;
 import danogl.util.Vector2;
+import pepse.world.Avatar;
 import pepse.world.Block;
 import pepse.world.Sky;
 import pepse.world.Terrain;
@@ -16,12 +18,17 @@ import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
 
+import java.awt.*;
 import java.util.List;
+
+import static pepse.util.Constants.AVATAR_DIMENSIONS;
+import static pepse.util.Constants.ENERGY_DISPLAY_DIMENSIONS;
 
 public class PepseGameManager extends GameManager {
 
     private static final float DEFAULT_DAY_CYCLE_LENGTH = 30;
     private static final Float MIDNIGHT_OPACITY = 0.5f;
+    private GameObject energyDisplay;
 
     public static void main(String[] args) {
         new PepseGameManager().run();
@@ -35,7 +42,34 @@ public class PepseGameManager extends GameManager {
         createTerrain(windowController);
         createNight(windowController);
         createSun(windowController);
+        createAvatar(imageReader, inputListener, windowController);
+    }
 
+    /**
+     * Creates the strikes left information display.
+     */
+    public void createEnergyDisplay(Float energy, WindowController windowController) {
+        TextRenderable energyRenderable = new TextRenderable(String.valueOf((int)(float) energy));
+        energyRenderable.setColor(Color.green);
+        Vector2 strikesPosition = new Vector2(windowController.getWindowDimensions().x() - 50,
+                windowController.getWindowDimensions().y()-20);
+        this.energyDisplay = new GameObject(strikesPosition, ENERGY_DISPLAY_DIMENSIONS, energyRenderable);
+        this.gameObjects().addGameObject(this.energyDisplay, Layer.UI);
+    }
+
+    public void removeEnergyDisplay() {
+        this.gameObjects().removeGameObject(this.energyDisplay, Layer.UI);
+    }
+
+
+    private void createAvatar(ImageReader imageReader, UserInputListener inputListener,
+                              WindowController windowController) {
+        Vector2 avatarPosition = new Vector2(windowController.getWindowDimensions().x() / 2,
+                Terrain.getGroundHeightAtX0(windowController.getWindowDimensions())
+                        - AVATAR_DIMENSIONS.y());
+        Avatar avatar = new Avatar(avatarPosition, inputListener, imageReader
+                , windowController, this::createEnergyDisplay, this::removeEnergyDisplay);
+        this.gameObjects().addGameObject(avatar);
     }
 
     private void createSun(WindowController windowController) {

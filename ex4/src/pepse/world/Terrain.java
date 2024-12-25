@@ -1,5 +1,6 @@
 package pepse.world;
 
+import danogl.components.GameObjectPhysics;
 import danogl.gui.rendering.RectangleRenderable;
 import danogl.util.Vector2;
 import supplied_code.ColorSupplier;
@@ -45,7 +46,10 @@ public class Terrain {
                         (float) (Math.floor(groundHeightAt(x) / Block.SIZE) * Block.SIZE +
                                 blockRow * Block.SIZE);
                 Vector2 topLeftCorner = new Vector2(x, blockYCoordinate);
-                blocks.add(new Block(topLeftCorner, rectangleRenderable));
+                Block block = new Block(topLeftCorner, rectangleRenderable);
+                block.physics().preventIntersectionsFromDirection(Vector2.UP);
+                block.physics().setMass(GameObjectPhysics.IMMOVABLE_MASS);
+                blocks.add(block);
             }
         }
         return blocks;
