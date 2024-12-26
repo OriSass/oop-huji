@@ -4,6 +4,7 @@ import danogl.components.GameObjectPhysics;
 import danogl.gui.rendering.RectangleRenderable;
 import danogl.util.Vector2;
 import supplied_code.ColorSupplier;
+import supplied_code.NoiseGenerator;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -12,24 +13,27 @@ import java.util.List;
 import static pepse.util.Constants.DEFAULT_BASE_GROUND_COLOR;
 
 public class Terrain {
+    private static final float CHAOS_FACTOR = Block.SIZE * 8;
 
     private final float groundHeightAtX0;
     private final int seed;
     private static final Color BASE_GROUND_COLOR = DEFAULT_BASE_GROUND_COLOR;
     private static final int TERRAIN_DEPTH = 20;
+    private final NoiseGenerator noiseGenerator;
 
     public Terrain(Vector2 windowDimensions, int seed){
         this.groundHeightAtX0 = getGroundHeightAtX0(windowDimensions);
         this.seed = seed;
+        noiseGenerator = new NoiseGenerator(seed, (int) groundHeightAtX0);
     }
 
     public static float getGroundHeightAtX0(Vector2 windowDimensions){
         return windowDimensions.y() * ((float) 2 /3);
     }
 
-    // todo migrate to use NoiseGenerator later
     public float groundHeightAt(float x){
-        return this.groundHeightAtX0 + 5;
+        float noise = (float) noiseGenerator.noise(x, CHAOS_FACTOR);
+        return groundHeightAtX0 + noise;
     }
 
     public List<Block> createInRange(int minX, int maxX){

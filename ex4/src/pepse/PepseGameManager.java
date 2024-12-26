@@ -47,17 +47,18 @@ public class PepseGameManager extends GameManager {
         createTerrain(windowController);
         createNight(windowController);
         createSun(windowController);
-        createAvatar(imageReader, inputListener, windowController);
+        createAvatar(imageReader, inputListener, windowController, this.terrain::groundHeightAt);
         createTrees(this.terrain::groundHeightAt, windowController);
+        // todo make trees start from the ground
     }
 
     private void createTrees(Function<Float,Float> getHeightByX, WindowController windowController) {
         this.trees = new ArrayList<>();
-        for (int x = 0;
+        for (float x = 0;
              x < windowController.getWindowDimensions().x();
-             x += (int) (TREE_TRUNK_WIDTH + AVATAR_DIMENSIONS.x())) {
+             x += (TREE_TRUNK_WIDTH + AVATAR_DIMENSIONS.x())) {
             if(Statistics.flipCoin(TREE_CREATION_CHANCE)){
-                Vector2 location = new Vector2(x, getHeightByX.apply(100f));
+                Vector2 location = new Vector2(x, getHeightByX.apply(x));
                 StaticTree tree = new StaticTree(location,
                         (gameObj, layer) -> this.gameObjects().addGameObject(gameObj, layer));
                 trees.add(tree);
@@ -84,10 +85,9 @@ public class PepseGameManager extends GameManager {
 
 
     private void createAvatar(ImageReader imageReader, UserInputListener inputListener,
-                              WindowController windowController) {
-        Vector2 avatarPosition = new Vector2(windowController.getWindowDimensions().x() / 2,
-                Terrain.getGroundHeightAtX0(windowController.getWindowDimensions())
-                        - AVATAR_DIMENSIONS.y());
+                              WindowController windowController, Function<Float,Float> getHeightByX) {
+        float x = windowController.getWindowDimensions().x() / 2;
+        Vector2 avatarPosition = new Vector2(x, getHeightByX.apply(x) - AVATAR_DIMENSIONS.y());
         Avatar avatar = new Avatar(avatarPosition, inputListener, imageReader
                 , windowController, this::createEnergyDisplay, this::removeEnergyDisplay);
         this.gameObjects().addGameObject(avatar);
