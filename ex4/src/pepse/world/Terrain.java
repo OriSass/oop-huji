@@ -47,8 +47,6 @@ public class Terrain {
                                 blockRow * Block.SIZE);
                 Vector2 topLeftCorner = new Vector2(x, blockYCoordinate);
                 Block block = new Block(topLeftCorner, rectangleRenderable);
-                block.physics().preventIntersectionsFromDirection(Vector2.UP);
-                block.physics().setMass(GameObjectPhysics.IMMOVABLE_MASS);
                 blocks.add(block);
             }
         }

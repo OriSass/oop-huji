@@ -1,10 +1,12 @@
-package pepse.world;
+package pepse.world.avatar;
 
 import danogl.GameObject;
 import danogl.gui.ImageReader;
 import danogl.gui.UserInputListener;
 import danogl.gui.WindowController;
+import danogl.gui.rendering.AnimationRenderable;
 import danogl.util.Vector2;
+import pepse.world.avatar.jump.JumpNotifier;
 
 import java.awt.event.KeyEvent;
 import java.util.function.BiConsumer;
@@ -17,20 +19,50 @@ public class Avatar extends GameObject {
     private final Runnable energyDisplayRemover;
     BiConsumer<Float, WindowController> energyDisplayCallback;
     private Float energy;
+    private final ImageReader imageReader;
     WindowController windowController;
+
+    AnimationRenderable idleAnimation;
+    AnimationRenderable jumpAnimation;
+    AnimationRenderable runAnimation;
+
+    JumpNotifier jumpNotifier;
 
     public Avatar(Vector2 topLeftCorner, UserInputListener inputListener,
                   ImageReader imageReader, WindowController windowController,
                   BiConsumer<Float, WindowController> energyDisplayCallback, Runnable energyDisplayRemover) {
         super(topLeftCorner, AVATAR_DIMENSIONS, imageReader.readImage(AVATAR_IMAGE_PATH, true));
+
+        this.imageReader = imageReader;
         this.windowController = windowController;
-        physics().preventIntersectionsFromDirection(Vector2.ZERO);
-        transform().setAccelerationY(GRAVITY);
         this.inputListener = inputListener;
-        this.energy = DEFAULT_ENERGY_MAX;
         this.energyDisplayCallback = energyDisplayCallback;
         this.energyDisplayRemover = energyDisplayRemover;
         energyDisplayCallback.accept(this.energy, windowController);
+
+        initAvatar();
+    }
+
+    private void initAvatar() {
+        this.energy = DEFAULT_ENERGY_MAX;
+        this.jumpNotifier = new JumpNotifier();
+
+        physics().preventIntersectionsFromDirection(Vector2.ZERO);
+        transform().setAccelerationY(GRAVITY);
+        initAnimations();
+        renderer().setRenderable(this.idleAnimation);
+    }
+
+    private void initAnimations() {
+        this.idleAnimation = new AnimationRenderable(
+                IDLE_ANIMATION_ARR,
+                this.imageReader, true, ANIMATION_FRAME_DURATION);
+        this.jumpAnimation = new AnimationRenderable(
+                JUMP_ANIMATION_ARR,
+                this.imageReader, true, ANIMATION_FRAME_DURATION);
+        this.runAnimation = new AnimationRenderable(
+                RUN_ANIMATION_ARR,
+                this.imageReader, true, ANIMATION_FRAME_DURATION);
     }
 
     /**
@@ -46,6 +78,25 @@ public class Avatar extends GameObject {
         jumpByEnter();
         regenerateEnergy();
         displayEnergy();
+        updateAnimation();
+    }
+
+    private void updateAnimation() {
+        if(getVelocity().isZero()){
+            renderer().setRenderable(this.idleAnimation);
+        }
+        else if (getVelocity().y() != 0){
+            renderer().setRenderable(this.jumpAnimation);
+        }
+        else{
+            renderer().setRenderable(this.runAnimation);
+        }
+    }
+
+    private AnimationRenderable createAnimation(String directoryPath){
+        return new AnimationRenderable(
+                directoryPath,
+                this.imageReader, true, ANIMATION_FRAME_DURATION);
     }
 
     private void displayEnergy() {
@@ -59,6 +110,14 @@ public class Avatar extends GameObject {
             if(this.energy > DEFAULT_ENERGY_MAX){
                 this.energy = DEFAULT_ENERGY_MAX;
             }
+        }
+    }
+
+    // will be used later in game dev
+    public void addToEnergy(float energy){
+        this.energy += energy;
+        if(this.energy > DEFAULT_ENERGY_MAX){
+            this.energy = DEFAULT_ENERGY_MAX;
         }
     }
 
@@ -85,9 +144,11 @@ public class Avatar extends GameObject {
         float xVelocity = 0;
         if (this.inputListener.isKeyPressed(KeyEvent.VK_LEFT)) {
             xVelocity -= AVATAR_MOVEMENT_SPEED;
+            renderer().setIsFlippedHorizontally(true);
         }
         if (this.inputListener.isKeyPressed(KeyEvent.VK_RIGHT)) {
-            xVelocity += AVATAR_MOVEMENT_SPEED;;
+            xVelocity += AVATAR_MOVEMENT_SPEED;
+            renderer().setIsFlippedHorizontally(false);
         }
         transform().setVelocityX(xVelocity);
         if(xVelocity != 0){
