@@ -10,6 +10,7 @@ import danogl.gui.UserInputListener;
 import danogl.gui.WindowController;
 import danogl.gui.rendering.TextRenderable;
 import danogl.util.Vector2;
+import pepse.util.Statistics;
 import pepse.world.avatar.Avatar;
 import pepse.world.Block;
 import pepse.world.Sky;
@@ -17,18 +18,22 @@ import pepse.world.Terrain;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
+import pepse.world.trees.StaticTree;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
-import static pepse.util.Constants.AVATAR_DIMENSIONS;
-import static pepse.util.Constants.ENERGY_DISPLAY_DIMENSIONS;
+import static pepse.util.Constants.*;
 
 public class PepseGameManager extends GameManager {
 
     private static final float DEFAULT_DAY_CYCLE_LENGTH = 30;
     private static final Float MIDNIGHT_OPACITY = 0.5f;
     private GameObject energyDisplay;
+    private Terrain terrain;
+    private List<StaticTree> trees;
 
     public static void main(String[] args) {
         new PepseGameManager().run();
@@ -43,13 +48,29 @@ public class PepseGameManager extends GameManager {
         createNight(windowController);
         createSun(windowController);
         createAvatar(imageReader, inputListener, windowController);
+        createTrees(this.terrain::groundHeightAt, windowController);
+    }
+
+    private void createTrees(Function<Float,Float> getHeightByX, WindowController windowController) {
+        this.trees = new ArrayList<>();
+        for (int x = 0;
+             x < windowController.getWindowDimensions().x();
+             x += (int) (TREE_TRUNK_WIDTH + AVATAR_DIMENSIONS.x())) {
+            if(Statistics.flipCoin(TREE_CREATION_CHANCE)){
+                Vector2 location = new Vector2(x, getHeightByX.apply(100f));
+                StaticTree tree = new StaticTree(location,
+                        (gameObj, layer) -> this.gameObjects().addGameObject(gameObj, layer));
+                trees.add(tree);
+
+            }
+        }
     }
 
     /**
      * Creates the strikes left information display.
      */
-    public void createEnergyDisplay(Float energy, WindowController windowController) {
-        TextRenderable energyRenderable = new TextRenderable(String.valueOf((int)(float) energy));
+    public void createEnergyDisplay(float energy, WindowController windowController) {
+        TextRenderable energyRenderable = new TextRenderable(String.valueOf((int) energy));
         energyRenderable.setColor(Color.green);
         Vector2 strikesPosition = new Vector2(windowController.getWindowDimensions().x() - 50,
                 windowController.getWindowDimensions().y()-20);
@@ -86,7 +107,7 @@ public class PepseGameManager extends GameManager {
     }
 
     private void createTerrain(WindowController windowController) {
-        Terrain terrain = new Terrain(windowController.getWindowDimensions(), 5);
+        this.terrain = new Terrain(windowController.getWindowDimensions(), 5);
         List<Block> blocks = terrain.createInRange(0, (int) windowController.getWindowDimensions().x());
         for (Block block : blocks) {
             this.gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);

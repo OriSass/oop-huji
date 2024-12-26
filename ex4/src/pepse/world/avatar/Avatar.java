@@ -38,9 +38,9 @@ public class Avatar extends GameObject {
         this.inputListener = inputListener;
         this.energyDisplayCallback = energyDisplayCallback;
         this.energyDisplayRemover = energyDisplayRemover;
+        initAvatar();
         energyDisplayCallback.accept(this.energy, windowController);
 
-        initAvatar();
     }
 
     private void initAvatar() {
@@ -91,12 +91,6 @@ public class Avatar extends GameObject {
         else{
             renderer().setRenderable(this.runAnimation);
         }
-    }
-
-    private AnimationRenderable createAnimation(String directoryPath){
-        return new AnimationRenderable(
-                directoryPath,
-                this.imageReader, true, ANIMATION_FRAME_DURATION);
     }
 
     private void displayEnergy() {

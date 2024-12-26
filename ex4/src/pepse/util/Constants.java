@@ -16,6 +16,8 @@ public class Constants {
     public static final String NIGHT_TAG = "night";
     public static final String SUN_TAG = "sun";
     public static final String SUN_HALO_TAG = "sun halo";
+    public static final String LEAF_TAG = "leaf";
+    public static final String TRUNK_TAG = "trunk";
 
     // colors
     public static final Color HALO_COLOR = new Color(255, 255, 0, 20);
@@ -61,6 +63,25 @@ public class Constants {
             RUN_ANIMATION_DIR_PATH + "/run_2.png",
             RUN_ANIMATION_DIR_PATH + "/run_3.png",
     };
+
+    public static final float TREE_TRUNK_WIDTH = 20f;
+    public static final float TREE_MIN_HEIGHT = 60f;
+    public static final float TREE_MAX_HEIGHT = 130f;
+
+    public static final Color TRUNK_BASE_COLOR = new Color(100, 50, 20);
+
+    public static final Vector2 LEAF_DIMENSIONS = new Vector2(10,10);
+    public static final int LEAVES_IN_LEAF_GRID = 10;
+    public static final Color LEAF_BASE_COLOR = new Color(50, 200, 30);
+    public static final float LEAF_CREATION_CHANCE = 0.5f;
+    public static final float TREE_CREATION_CHANCE = 0.3f;
+
+    public static Vector2 LEAF_GRID = new Vector2(LEAVES_IN_LEAF_GRID * LEAF_DIMENSIONS.x(),
+            LEAVES_IN_LEAF_GRID * LEAF_DIMENSIONS.y());
+
+
+
+
 
 
 
