@@ -3,6 +3,7 @@ package pepse;
 import danogl.GameManager;
 import danogl.GameObject;
 import danogl.collisions.Layer;
+import danogl.components.ScheduledTask;
 import danogl.components.Transition;
 import danogl.gui.ImageReader;
 import danogl.gui.SoundReader;
@@ -34,6 +35,7 @@ public class PepseGameManager extends GameManager {
     private GameObject energyDisplay;
     private Terrain terrain;
     private List<StaticTree> trees;
+    private Avatar avatar;
 
     public static void main(String[] args) {
         new PepseGameManager().run();
@@ -43,6 +45,7 @@ public class PepseGameManager extends GameManager {
     public void initializeGame(ImageReader imageReader, SoundReader soundReader,
                                UserInputListener inputListener, WindowController windowController) {
         super.initializeGame(imageReader, soundReader, inputListener, windowController);
+        windowController.setTargetFramerate(60);
         createSky(windowController);
         createTerrain(windowController);
         createNight(windowController);
@@ -60,7 +63,8 @@ public class PepseGameManager extends GameManager {
                 float trunkHeight = (float) (Math.floor(getHeightByX.apply(x) / Block.SIZE) * Block.SIZE);
                 Vector2 location = new Vector2(x, trunkHeight);
                 StaticTree tree = new StaticTree(location,
-                        (gameObj, layer) -> this.gameObjects().addGameObject(gameObj, layer));
+                        (gameObj, layer) -> this.gameObjects().addGameObject(gameObj, layer),
+                        this::fruitHandler);
                 trees.add(tree);
             }
         }
@@ -87,9 +91,31 @@ public class PepseGameManager extends GameManager {
                               WindowController windowController, Function<Float,Float> getHeightByX) {
         float x = windowController.getWindowDimensions().x() / 2;
         Vector2 avatarPosition = new Vector2(x, getHeightByX.apply(x) - AVATAR_DIMENSIONS.y());
-        Avatar avatar = new Avatar(avatarPosition, inputListener, imageReader
+        this.avatar = new Avatar(avatarPosition, inputListener, imageReader
                 , windowController, this::createEnergyDisplay, this::removeEnergyDisplay);
-        this.gameObjects().addGameObject(avatar);
+        this.gameObjects().addGameObject(this.avatar);
+    }
+
+    /**
+     * Handle the collision between a fruit and another object.
+     * @param fruit The fruit that was eaten.
+     * @param other The object that ate the fruit.
+     */
+    private void fruitHandler(GameObject fruit, GameObject other) {
+        // If the other object is not the avatar, we don't care - Only the avatar can eat the fruit
+        if (!other.getTag().equals(AVATAR_TAG)) {
+            return;
+        }
+
+        boolean avatarAte = avatar.addToEnergy(FRUIT_ENERGY);
+        if(avatarAte){
+            gameObjects().removeGameObject(fruit);
+            new ScheduledTask(
+                    avatar,
+                    DEFAULT_DAY_CYCLE_LENGTH,
+                    false,
+                    () -> gameObjects().addGameObject(fruit));
+        }
     }
 
     private void createSun(WindowController windowController) {

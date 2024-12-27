@@ -46,6 +46,7 @@ public class Avatar extends GameObject {
     private void initAvatar() {
         this.energy = DEFAULT_ENERGY_MAX;
         this.jumpNotifier = new JumpNotifier();
+        setTag(AVATAR_TAG);
 
         physics().preventIntersectionsFromDirection(Vector2.ZERO);
         transform().setAccelerationY(GRAVITY);
@@ -108,11 +109,15 @@ public class Avatar extends GameObject {
     }
 
     // will be used later in game dev
-    public void addToEnergy(float energy){
+    public boolean addToEnergy(float energy){
+        if(this.energy >= DEFAULT_ENERGY_MAX){
+            return false;
+        }
         this.energy += energy;
         if(this.energy > DEFAULT_ENERGY_MAX){
             this.energy = DEFAULT_ENERGY_MAX;
         }
+        return true;
     }
 
     private void jumpByEnter() {
@@ -148,5 +153,10 @@ public class Avatar extends GameObject {
         if(xVelocity != 0){
             this.energy -= HORIZONTAL_MOVEMENT_ENERGY_COST;
         }
+    }
+
+    @Override
+    public boolean shouldCollideWith(GameObject other) {
+        return ALLOWED_TO_COLLIDE_WITH_AVATAR.stream().anyMatch(tag -> tag.equals(other.getTag()));
     }
 }

@@ -5,6 +5,7 @@ import danogl.collisions.Layer;
 import danogl.components.GameObjectPhysics;
 import danogl.components.ScheduledTask;
 import danogl.components.Transition;
+import danogl.gui.rendering.OvalRenderable;
 import danogl.gui.rendering.RectangleRenderable;
 import danogl.util.Vector2;
 import pepse.util.Statistics;
@@ -25,12 +26,15 @@ public class StaticTree {
     Vector2 trunkDimensions;
     GameObject trunk;
     List<GameObject> leaves;
+    List<GameObject> fruits;
+    private BiConsumer<Fruit, GameObject> fruitHandler;
 
-    public StaticTree(Vector2 location, BiConsumer<GameObject, Integer> addGameObj){
+    public StaticTree(Vector2 location, BiConsumer<GameObject, Integer> addGameObj, BiConsumer<Fruit, GameObject> fruitHandler){
+        this.fruitHandler = fruitHandler;
         this.trunkDimensions = new Vector2(TREE_TRUNK_WIDTH, getRandomTreeHeight());
         this.location = location.subtract(new Vector2(0, this.trunkDimensions.y()));
         createTrunk(addGameObj);
-        createLeaves(addGameObj);
+        createTreeTop(addGameObj);
     }
 
     private void createTrunk(BiConsumer<GameObject, Integer> addGameObj) {
@@ -43,19 +47,36 @@ public class StaticTree {
         addGameObj.accept(this.trunk, Layer.STATIC_OBJECTS);
     }
 
-    private void createLeaves(BiConsumer<GameObject, Integer> addGameObj) {
+    private void createTreeTop(BiConsumer<GameObject, Integer> addGameObj) {
         this.leaves = new ArrayList<>();
+        this.fruits = new ArrayList<>();
 
         Vector2 treeTopLeftCorner = getTreeTopLeftCorner();
         Vector2 lastLeafLocation = treeTopLeftCorner.add(LEAF_GRID);
 
-        for (float y = treeTopLeftCorner.y(); y < lastLeafLocation.y(); y+= LEAF_DIMENSIONS.y()) {
-            for (float x = treeTopLeftCorner.x(); x < lastLeafLocation.x(); x+= LEAF_DIMENSIONS.x()) {
+        for (float y = treeTopLeftCorner.y(); y < lastLeafLocation.y();
+             y+= LEAF_DIMENSIONS.y() + LEAF_PADDING) {
+            for (float x = treeTopLeftCorner.x(); x < lastLeafLocation.x();
+                 x+= LEAF_DIMENSIONS.x() + LEAF_PADDING) {
                 if(Statistics.flipCoin(LEAF_CREATION_CHANCE)){
                     createLeaf(addGameObj, x, y);
                 }
+                else if(Statistics.flipCoin(FRUIT_CREATION_CHANCE)){
+                    createFruit(addGameObj, x + FRUIT_PADDING, y + FRUIT_PADDING);
+                }
             }
         }
+    }
+
+    private void createFruit(BiConsumer<GameObject, Integer> addGameObj, float x, float y) {
+        OvalRenderable fruitRenderable =
+                new OvalRenderable(ColorSupplier.approximateColor(FRUIT_BASE_COLOR));
+        Vector2 fruitLocation = new Vector2(x, y);
+        GameObject fruit = new Fruit(fruitLocation, FRUIT_DIMENSIONS, fruitRenderable, this.fruitHandler);
+        fruit.setTag(FRUIT_TAG);
+
+        addGameObj.accept(fruit, Layer.DEFAULT);
+        fruits.add(fruit);
     }
 
     private void createLeafAngleTransition(GameObject leaf) {

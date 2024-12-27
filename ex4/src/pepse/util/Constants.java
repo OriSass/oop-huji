@@ -3,6 +3,8 @@ package pepse.util;
 import danogl.util.Vector2;
 
 import java.awt.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class Constants {
 
@@ -18,6 +20,11 @@ public class Constants {
     public static final String SUN_HALO_TAG = "sun halo";
     public static final String LEAF_TAG = "leaf";
     public static final String TRUNK_TAG = "trunk";
+    public static final String FRUIT_TAG = "fruit";
+    public static final String AVATAR_TAG = "avatar";
+
+    public static final List<String> ALLOWED_TO_COLLIDE_WITH_AVATAR =
+            Arrays.asList(BLOCK_TAG, TRUNK_TAG, FRUIT_TAG);
 
     // colors
     public static final Color HALO_COLOR = new Color(255, 255, 0, 20);
@@ -76,7 +83,9 @@ public class Constants {
     public static final Color LEAF_BASE_COLOR = new Color(50, 200, 30);
     public static final float LEAF_CREATION_CHANCE = 0.5f;
     public static final float TREE_CREATION_CHANCE = 0.3f;
-    public static Vector2 LEAF_GRID = new Vector2(LEAVES_IN_LEAF_GRID * LEAF_DIMENSIONS.x(),
+    public static final float LEAF_PADDING = 3.5f;
+    public static Vector2 LEAF_GRID =
+            new Vector2(LEAVES_IN_LEAF_GRID * LEAF_DIMENSIONS.x(),
             LEAVES_IN_LEAF_GRID * LEAF_DIMENSIONS.y());
 
     // leaf transitions
@@ -84,6 +93,12 @@ public class Constants {
     public static final float LEAF_TRANSITION_TIME = 0.6f;
     public static final float LEAF_DIMENSION_TRANSITION_FACTOR = 0.7f;
 
+    // fruit
+    public static final float FRUIT_CREATION_CHANCE = 0.5f;
+    public static final Color FRUIT_BASE_COLOR = Color.red;
+    public static final Vector2 FRUIT_DIMENSIONS = LEAF_DIMENSIONS.mult(0.8f);
+    public static final float FRUIT_PADDING = LEAF_DIMENSIONS.x() / 4;
+    public static final float FRUIT_ENERGY = 10f;
 
 
 
