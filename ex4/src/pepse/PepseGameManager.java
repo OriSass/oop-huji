@@ -49,7 +49,6 @@ public class PepseGameManager extends GameManager {
         createSun(windowController);
         createAvatar(imageReader, inputListener, windowController, this.terrain::groundHeightAt);
         createTrees(this.terrain::groundHeightAt, windowController);
-        // todo make trees start from the ground
     }
 
     private void createTrees(Function<Float,Float> getHeightByX, WindowController windowController) {
@@ -58,11 +57,11 @@ public class PepseGameManager extends GameManager {
              x < windowController.getWindowDimensions().x();
              x += (TREE_TRUNK_WIDTH + AVATAR_DIMENSIONS.x())) {
             if(Statistics.flipCoin(TREE_CREATION_CHANCE)){
-                Vector2 location = new Vector2(x, getHeightByX.apply(x));
+                float trunkHeight = (float) (Math.floor(getHeightByX.apply(x) / Block.SIZE) * Block.SIZE);
+                Vector2 location = new Vector2(x, trunkHeight);
                 StaticTree tree = new StaticTree(location,
                         (gameObj, layer) -> this.gameObjects().addGameObject(gameObj, layer));
                 trees.add(tree);
-
             }
         }
     }

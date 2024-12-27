@@ -1,6 +1,5 @@
 package pepse.world;
 
-import danogl.components.GameObjectPhysics;
 import danogl.gui.rendering.RectangleRenderable;
 import danogl.util.Vector2;
 import supplied_code.ColorSupplier;
@@ -13,7 +12,7 @@ import java.util.List;
 import static pepse.util.Constants.DEFAULT_BASE_GROUND_COLOR;
 
 public class Terrain {
-    private static final float CHAOS_FACTOR = Block.SIZE * 8;
+    private static final float CHAOS_FACTOR = Block.SIZE * 7;
 
     private final float groundHeightAtX0;
     private final int seed;

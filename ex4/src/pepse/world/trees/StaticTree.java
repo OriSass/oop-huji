@@ -3,6 +3,8 @@ package pepse.world.trees;
 import danogl.GameObject;
 import danogl.collisions.Layer;
 import danogl.components.GameObjectPhysics;
+import danogl.components.ScheduledTask;
+import danogl.components.Transition;
 import danogl.gui.rendering.RectangleRenderable;
 import danogl.util.Vector2;
 import pepse.util.Statistics;
@@ -56,14 +58,52 @@ public class StaticTree {
         }
     }
 
+    private void createLeafAngleTransition(GameObject leaf) {
+        new Transition<Float>(
+                leaf,
+                leaf.renderer()::setRenderableAngle,
+                0f,
+                LEAF_ANGLE_BOUND, // final angle
+                Transition.CUBIC_INTERPOLATOR_FLOAT,
+                LEAF_TRANSITION_TIME,
+                Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);
+    }
+
+    private void createLeafDimensionTransition(GameObject leaf) {
+        new Transition<Vector2>(
+                leaf,
+                leaf::setDimensions,
+                LEAF_DIMENSIONS,
+                LEAF_DIMENSIONS.multX(LEAF_DIMENSION_TRANSITION_FACTOR), // final dimension
+                Transition.CUBIC_INTERPOLATOR_VECTOR,
+                LEAF_TRANSITION_TIME,
+                Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);
+    }
+
     private void createLeaf(BiConsumer<GameObject, Integer> addGameObj, float x, float y) {
         RectangleRenderable leafRenderable =
                 new RectangleRenderable(ColorSupplier.approximateColor(LEAF_BASE_COLOR));
         Vector2 leafLocation = new Vector2(x, y);
         GameObject leaf = new GameObject(leafLocation, LEAF_DIMENSIONS, leafRenderable);
         leaf.setTag(LEAF_TAG);
+
+        createLeafTransitions(leaf);
+
         addGameObj.accept(leaf, Layer.STATIC_OBJECTS);
         leaves.add(leaf);
+    }
+
+    private void createLeafTransitions(GameObject leaf) {
+        float waitTime = random.nextFloat();
+        new ScheduledTask(
+                leaf,
+                waitTime,
+                false,
+                () -> {
+                    createLeafAngleTransition(leaf);
+                    createLeafDimensionTransition(leaf);
+                }
+        );
     }
 
     private Vector2 getTreeTopLeftCorner() {

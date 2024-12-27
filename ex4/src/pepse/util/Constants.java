@@ -70,15 +70,19 @@ public class Constants {
 
     public static final Color TRUNK_BASE_COLOR = new Color(100, 50, 20);
 
+    // leaf specs
     public static final Vector2 LEAF_DIMENSIONS = new Vector2(10,10);
     public static final int LEAVES_IN_LEAF_GRID = 10;
     public static final Color LEAF_BASE_COLOR = new Color(50, 200, 30);
     public static final float LEAF_CREATION_CHANCE = 0.5f;
     public static final float TREE_CREATION_CHANCE = 0.3f;
-
     public static Vector2 LEAF_GRID = new Vector2(LEAVES_IN_LEAF_GRID * LEAF_DIMENSIONS.x(),
             LEAVES_IN_LEAF_GRID * LEAF_DIMENSIONS.y());
 
+    // leaf transitions
+    public static final float LEAF_ANGLE_BOUND = 45f;
+    public static final float LEAF_TRANSITION_TIME = 0.6f;
+    public static final float LEAF_DIMENSION_TRANSITION_FACTOR = 0.7f;
 
 
 
