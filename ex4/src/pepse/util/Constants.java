@@ -1,6 +1,7 @@
 package pepse.util;
 
 import danogl.util.Vector2;
+import pepse.world.Block;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -22,6 +23,7 @@ public class Constants {
     public static final String TRUNK_TAG = "trunk";
     public static final String FRUIT_TAG = "fruit";
     public static final String AVATAR_TAG = "avatar";
+    public static final String CLOUD_TAG = "cloud";
 
     public static final List<String> ALLOWED_TO_COLLIDE_WITH_AVATAR =
             Arrays.asList(BLOCK_TAG, TRUNK_TAG, FRUIT_TAG);
@@ -99,6 +101,11 @@ public class Constants {
     public static final Vector2 FRUIT_DIMENSIONS = LEAF_DIMENSIONS.mult(0.8f);
     public static final float FRUIT_PADDING = LEAF_DIMENSIONS.x() / 4;
     public static final float FRUIT_ENERGY = 10f;
+
+    // cloud
+    public static final float CLOUD_LENGTH = 7f * 1.5f * Block.SIZE;
+    public static final Vector2 CLOUD_START_LOCATION = new Vector2(CLOUD_LENGTH * -1, 40f);
+    public static final Vector2 CLOUD_MOVEMENT_VECTOR = new Vector2(2f,0);
 
 
 

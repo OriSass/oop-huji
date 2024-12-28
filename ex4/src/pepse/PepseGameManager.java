@@ -16,6 +16,7 @@ import pepse.world.avatar.Avatar;
 import pepse.world.Block;
 import pepse.world.Sky;
 import pepse.world.Terrain;
+import pepse.world.avatar.jump.observers.Cloud;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
@@ -30,12 +31,14 @@ import static pepse.util.Constants.*;
 
 public class PepseGameManager extends GameManager {
 
-    private static final float DEFAULT_DAY_CYCLE_LENGTH = 30;
+    public static final float DEFAULT_DAY_CYCLE_LENGTH = 30f;
+    public static final float CLOUD_CYCLE_LENGTH = 100f;
     private static final Float MIDNIGHT_OPACITY = 0.5f;
     private GameObject energyDisplay;
     private Terrain terrain;
     private List<StaticTree> trees;
     private Avatar avatar;
+    private List<Block> cloudBlocks;
 
     public static void main(String[] args) {
         new PepseGameManager().run();
@@ -52,6 +55,15 @@ public class PepseGameManager extends GameManager {
         createSun(windowController);
         createAvatar(imageReader, inputListener, windowController, this.terrain::groundHeightAt);
         createTrees(this.terrain::groundHeightAt, windowController);
+        createCloud(windowController);
+    }
+
+    private void createCloud(WindowController windowController) {
+        this.cloudBlocks = Cloud.create(windowController.getWindowDimensions());
+        for (Block cloudBlock : this.cloudBlocks){
+            cloudBlock.setTag(CLOUD_TAG);
+            this.gameObjects().addGameObject(cloudBlock);
+        }
     }
 
     private void createTrees(Function<Float,Float> getHeightByX, WindowController windowController) {
