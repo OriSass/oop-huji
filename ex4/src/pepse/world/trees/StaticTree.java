@@ -24,9 +24,9 @@ public class StaticTree {
 
     Vector2 location;
     Vector2 trunkDimensions;
-    GameObject trunk;
-    List<GameObject> leaves;
-    List<GameObject> fruits;
+    private GameObject trunk;
+    private List<GameObject> leaves;
+    private List<GameObject> fruits;
     private BiConsumer<Fruit, GameObject> fruitHandler;
 
     public StaticTree(Vector2 location, BiConsumer<GameObject, Integer> addGameObj, BiConsumer<Fruit, GameObject> fruitHandler){
@@ -135,5 +135,29 @@ public class StaticTree {
 
     private static float getRandomTreeHeight() {
         return random.nextFloat(TREE_MIN_HEIGHT, TREE_MAX_HEIGHT);
+    }
+
+    public GameObject getTrunk() {
+        return trunk;
+    }
+
+    public void setTrunk(GameObject trunk) {
+        this.trunk = trunk;
+    }
+
+    public List<GameObject> getLeaves() {
+        return leaves;
+    }
+
+    public void setLeaves(List<GameObject> leaves) {
+        this.leaves = leaves;
+    }
+
+    public List<GameObject> getFruits() {
+        return fruits;
+    }
+
+    public void setFruits(List<GameObject> fruits) {
+        this.fruits = fruits;
     }
 }

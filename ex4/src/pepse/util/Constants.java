@@ -84,7 +84,7 @@ public class Constants {
     public static final int LEAVES_IN_LEAF_GRID = 10;
     public static final Color LEAF_BASE_COLOR = new Color(50, 200, 30);
     public static final float LEAF_CREATION_CHANCE = 0.5f;
-    public static final float TREE_CREATION_CHANCE = 0.3f;
+    public static final float TREE_CREATION_CHANCE = 0.1f;
     public static final float LEAF_PADDING = 3.5f;
     public static Vector2 LEAF_GRID =
             new Vector2(LEAVES_IN_LEAF_GRID * LEAF_DIMENSIONS.x(),
@@ -114,8 +114,7 @@ public class Constants {
     public static final float VISIBLE_OPACITY = 1f;
     public static final float INVISIBLE_OPACITY = 0f;
 
-
-
-
+    // infinite world
+    public static final float TERRAIN_GAP = Block.SIZE * 2;
 
 }

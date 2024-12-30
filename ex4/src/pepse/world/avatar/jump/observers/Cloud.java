@@ -108,6 +108,7 @@ public class Cloud implements JumpObserver {
                 GameObject drop = new GameObject(dropLocation, dimensions, dropRenderable);
                 createDropTransition(drop);
                 drop.transform().setAccelerationY(GRAVITY);
+                drop.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
                 this.addGameObj.accept(drop, Layer.FOREGROUND);
             }
         }

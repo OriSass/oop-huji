@@ -3,15 +3,16 @@ package pepse;
 import danogl.GameManager;
 import danogl.GameObject;
 import danogl.collisions.Layer;
+import danogl.components.CoordinateSpace;
 import danogl.components.ScheduledTask;
 import danogl.components.Transition;
 import danogl.gui.ImageReader;
 import danogl.gui.SoundReader;
 import danogl.gui.UserInputListener;
 import danogl.gui.WindowController;
+import danogl.gui.rendering.Camera;
 import danogl.gui.rendering.TextRenderable;
 import danogl.util.Vector2;
-import pepse.util.Statistics;
 import pepse.world.avatar.Avatar;
 import pepse.world.Block;
 import pepse.world.Sky;
@@ -21,10 +22,9 @@ import pepse.world.avatar.jump.observers.Cloud;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
-import pepse.world.trees.StaticTree;
+import pepse.world.trees.Flora;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -37,10 +37,13 @@ public class PepseGameManager extends GameManager {
     private static final Float MIDNIGHT_OPACITY = 0.5f;
     private GameObject energyDisplay;
     private Terrain terrain;
-    private List<StaticTree> trees;
     private Avatar avatar;
     private JumpNotifier jumpNotifier;
     private Cloud cloud;
+
+    private float terrainStart;
+    private float terrainEnd;
+    private Flora flora;
 
     public static void main(String[] args) {
         new PepseGameManager().run();
@@ -53,12 +56,15 @@ public class PepseGameManager extends GameManager {
         windowController.setTargetFramerate(60);
         this.jumpNotifier = new JumpNotifier();
         createSky(windowController);
-        createTerrain(windowController);
+        initTerrain(windowController);
+        createTerrain();
         createNight(windowController);
         createSun(windowController);
         createAvatar(imageReader, inputListener, windowController, this.terrain::groundHeightAt);
-        createTrees(this.terrain::groundHeightAt, windowController);
+        createFlora(this.terrain::groundHeightAt);
         createCloud(windowController);
+        setCamera(new Camera(this.avatar, Vector2.ZERO,
+                windowController.getWindowDimensions(), windowController.getWindowDimensions()));
     }
 
     private void createCloud(WindowController windowController) {
@@ -68,20 +74,14 @@ public class PepseGameManager extends GameManager {
 
     }
 
-    private void createTrees(Function<Float,Float> getHeightByX, WindowController windowController) {
-        this.trees = new ArrayList<>();
-        for (float x = 0;
-             x < windowController.getWindowDimensions().x();
-             x += (TREE_TRUNK_WIDTH + AVATAR_DIMENSIONS.x())) {
-            if(Statistics.flipCoin(TREE_CREATION_CHANCE)){
-                float trunkHeight = (float) (Math.floor(getHeightByX.apply(x) / Block.SIZE) * Block.SIZE);
-                Vector2 location = new Vector2(x, trunkHeight);
-                StaticTree tree = new StaticTree(location,
-                        (gameObj, layer) -> this.gameObjects().addGameObject(gameObj, layer),
-                        this::fruitHandler);
-                trees.add(tree);
-            }
-        }
+    private void createFlora(Function<Float,Float> getHeightByX) {
+        this.flora = new Flora(
+                getHeightByX,
+                (gameObj, layer) -> this.gameObjects().addGameObject(gameObj,
+                        layer) ,this::fruitHandler,
+                (gameObj, layer) -> this.gameObjects().removeGameObject(gameObj,
+                        layer), this::removeGameObjList);
+        this.flora.createInRange((int) this.terrainStart, (int) this.terrainEnd);
     }
 
     /**
@@ -93,6 +93,7 @@ public class PepseGameManager extends GameManager {
         Vector2 strikesPosition = new Vector2(windowController.getWindowDimensions().x() - 50,
                 windowController.getWindowDimensions().y()-20);
         this.energyDisplay = new GameObject(strikesPosition, ENERGY_DISPLAY_DIMENSIONS, energyRenderable);
+        this.energyDisplay.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
         this.gameObjects().addGameObject(this.energyDisplay, Layer.UI);
     }
 
@@ -129,7 +130,13 @@ public class PepseGameManager extends GameManager {
                     avatar,
                     DEFAULT_DAY_CYCLE_LENGTH,
                     false,
-                    () -> gameObjects().addGameObject(fruit));
+                    () -> {
+                        // check if there is still a tree (it could have been removed)
+                        // if there is respawn fruit
+                        if(this.flora.treeExistsByFruit(fruit)){
+                            gameObjects().addGameObject(fruit);
+                        }
+                    });
         }
     }
 
@@ -146,9 +153,13 @@ public class PepseGameManager extends GameManager {
         this.gameObjects().addGameObject(night, Layer.FOREGROUND);
     }
 
-    private void createTerrain(WindowController windowController) {
+    private void initTerrain(WindowController windowController){
         this.terrain = new Terrain(windowController.getWindowDimensions(), 5);
-        List<Block> blocks = terrain.createInRange(0, (int) windowController.getWindowDimensions().x());
+        this.terrainStart = -1 * TERRAIN_GAP;
+        this.terrainEnd = windowController.getWindowDimensions().x() + TERRAIN_GAP;
+    }
+    private void createTerrain() {
+        List<Block> blocks = terrain.createInRange((int) this.terrainStart, (int) this.terrainEnd);
         for (Block block : blocks) {
             this.gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);
         }
@@ -189,4 +200,70 @@ public class PepseGameManager extends GameManager {
         this.gameObjects().addGameObject(sunHalo, Layer.BACKGROUND);
     }
 
+    @Override
+    public void update(float deltaTime) {
+        super.update(deltaTime);
+        adjustInfiniteWorld();
+    }
+
+    private void addGameObjList(List<GameObject> gameObjList, int layer){
+        for(GameObject gameObj : gameObjList){
+            this.gameObjects().addGameObject(gameObj, layer);
+        }
+    }
+
+    public void removeGameObjList(List<GameObject> gameObjList, int layer){
+        for(GameObject gameObj : gameObjList){
+            this.gameObjects().removeGameObject(gameObj, layer);
+        }
+    }
+
+    private void adjustInfiniteWorld() {
+        float cameraStartX = this.camera().getTopLeftCorner().x();
+        float cameraEndX = cameraStartX + this.camera().getDimensions().x();
+
+        boolean needToCreateLeftWorld = cameraStartX < this.terrainStart;
+        boolean needToCreateRightWorld = cameraEndX > this.terrainEnd;
+
+        if (needToCreateLeftWorld || needToCreateRightWorld) {
+            // right
+            int addStart = (int) (this.terrainEnd);
+            int addEnd = (int) (cameraEndX + TERRAIN_GAP);
+            float removeStart = this.terrainStart;
+            float removeEnd = cameraStartX - TERRAIN_GAP;
+
+            // left
+            if(needToCreateLeftWorld){
+                addStart = (int) (cameraStartX - TERRAIN_GAP);
+                addEnd =  (int) this.terrainStart;
+                removeStart = cameraEndX + TERRAIN_GAP;
+                removeEnd = this.terrainEnd;
+            }
+
+            changeWorld(addStart, addEnd, removeStart, removeEnd);
+
+            this.terrainStart = cameraStartX - TERRAIN_GAP;
+            this.terrainEnd = cameraEndX + TERRAIN_GAP;
+        }
+    }
+
+    private void changeWorld(int addStart, int addEnd, float removeStart, float removeEnd) {
+        changeTerrain(addStart, addEnd, removeStart, removeEnd);
+        changeFlora(addStart, addEnd, removeStart, removeEnd);
+    }
+
+    private void changeFlora(int addStart, int addEnd, float removeStart, float removeEnd) {
+        this.flora.createInRange(addStart, addEnd);
+        this.flora.removeInRange(removeStart, removeEnd);
+    }
+
+    private void changeTerrain(int addStart, int addEnd, float removeStart, float removeEnd) {
+        List<GameObject> addedBlocks = this.terrain.addTerrainForInfinite(addStart, addEnd);
+        this.addGameObjList(addedBlocks, Layer.STATIC_OBJECTS);
+
+        List<GameObject> blocksToRemove = this.terrain.getBlocks(removeStart, removeEnd);
+        this.removeGameObjList(blocksToRemove, Layer.STATIC_OBJECTS);
+
+        this.terrain.removeTerrain(blocksToRemove);
+    }
 }
