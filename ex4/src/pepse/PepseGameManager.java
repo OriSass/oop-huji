@@ -16,6 +16,7 @@ import pepse.world.avatar.Avatar;
 import pepse.world.Block;
 import pepse.world.Sky;
 import pepse.world.Terrain;
+import pepse.world.avatar.jump.JumpNotifier;
 import pepse.world.avatar.jump.observers.Cloud;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
@@ -38,7 +39,8 @@ public class PepseGameManager extends GameManager {
     private Terrain terrain;
     private List<StaticTree> trees;
     private Avatar avatar;
-    private List<Block> cloudBlocks;
+    private JumpNotifier jumpNotifier;
+    private Cloud cloud;
 
     public static void main(String[] args) {
         new PepseGameManager().run();
@@ -49,6 +51,7 @@ public class PepseGameManager extends GameManager {
                                UserInputListener inputListener, WindowController windowController) {
         super.initializeGame(imageReader, soundReader, inputListener, windowController);
         windowController.setTargetFramerate(60);
+        this.jumpNotifier = new JumpNotifier();
         createSky(windowController);
         createTerrain(windowController);
         createNight(windowController);
@@ -59,11 +62,10 @@ public class PepseGameManager extends GameManager {
     }
 
     private void createCloud(WindowController windowController) {
-        this.cloudBlocks = Cloud.create(windowController.getWindowDimensions());
-        for (Block cloudBlock : this.cloudBlocks){
-            cloudBlock.setTag(CLOUD_TAG);
-            this.gameObjects().addGameObject(cloudBlock);
-        }
+        this.cloud = new Cloud(windowController.getWindowDimensions(),
+                (gameObj, layer) -> this.gameObjects().addGameObject(gameObj, layer));
+        this.jumpNotifier.addObserver(this.cloud);
+
     }
 
     private void createTrees(Function<Float,Float> getHeightByX, WindowController windowController) {
@@ -103,8 +105,9 @@ public class PepseGameManager extends GameManager {
                               WindowController windowController, Function<Float,Float> getHeightByX) {
         float x = windowController.getWindowDimensions().x() / 2;
         Vector2 avatarPosition = new Vector2(x, getHeightByX.apply(x) - AVATAR_DIMENSIONS.y());
-        this.avatar = new Avatar(avatarPosition, inputListener, imageReader
-                , windowController, this::createEnergyDisplay, this::removeEnergyDisplay);
+        this.avatar = new Avatar(avatarPosition, inputListener, imageReader,
+                windowController, this::createEnergyDisplay, this::removeEnergyDisplay,
+                this.jumpNotifier::notifyObservers);
         this.gameObjects().addGameObject(this.avatar);
     }
 

@@ -17,6 +17,7 @@ public class Avatar extends GameObject {
 
     private final UserInputListener inputListener;
     private final Runnable energyDisplayRemover;
+    private final Runnable notifyJumpObservers;
     BiConsumer<Float, WindowController> energyDisplayCallback;
     private Float energy;
     private final ImageReader imageReader;
@@ -26,11 +27,10 @@ public class Avatar extends GameObject {
     AnimationRenderable jumpAnimation;
     AnimationRenderable runAnimation;
 
-    JumpNotifier jumpNotifier;
-
     public Avatar(Vector2 topLeftCorner, UserInputListener inputListener,
                   ImageReader imageReader, WindowController windowController,
-                  BiConsumer<Float, WindowController> energyDisplayCallback, Runnable energyDisplayRemover) {
+                  BiConsumer<Float, WindowController> energyDisplayCallback, Runnable energyDisplayRemover,
+                  Runnable notifyJumpObservers) {
         super(topLeftCorner, AVATAR_DIMENSIONS, imageReader.readImage(AVATAR_IMAGE_PATH, true));
 
         this.imageReader = imageReader;
@@ -38,6 +38,7 @@ public class Avatar extends GameObject {
         this.inputListener = inputListener;
         this.energyDisplayCallback = energyDisplayCallback;
         this.energyDisplayRemover = energyDisplayRemover;
+        this.notifyJumpObservers = notifyJumpObservers;
         initAvatar();
         energyDisplayCallback.accept(this.energy, windowController);
 
@@ -45,7 +46,6 @@ public class Avatar extends GameObject {
 
     private void initAvatar() {
         this.energy = DEFAULT_ENERGY_MAX;
-        this.jumpNotifier = new JumpNotifier();
         setTag(AVATAR_TAG);
 
         physics().preventIntersectionsFromDirection(Vector2.ZERO);
@@ -125,6 +125,7 @@ public class Avatar extends GameObject {
             return;
         }
         if(inputListener.isKeyPressed(KeyEvent.VK_SPACE) && getVelocity().y() == 0){
+            this.notifyJumpObservers.run();
             transform().setVelocityY(AVATAR_JUMP_VELOCITY_Y);
             this.energy -= JUMP_ENERGY_COST;
         }

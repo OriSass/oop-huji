@@ -108,6 +108,12 @@ public class Constants {
     public static final Vector2 CLOUD_MOVEMENT_VECTOR = new Vector2(2f,0);
 
 
+    // rain
+    public static final float RAIN_DROP_CHANCE = 0.35f;
+    public static final float RAIN_TRANSITION_TIME = 2f;
+    public static final float VISIBLE_OPACITY = 1f;
+    public static final float INVISIBLE_OPACITY = 0f;
+
 
 
 
