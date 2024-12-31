@@ -4,9 +4,12 @@ import java.util.Random;
 
 public class Statistics {
 
-    static Random random = new Random();
+    Random random;
 
-    public static boolean flipCoin(float chance){
+    public Statistics(int seed){
+        this.random = new Random(seed);
+    }
+    public boolean flipCoin(float chance){
         return random.nextFloat() > 1f - chance;
     }
 }

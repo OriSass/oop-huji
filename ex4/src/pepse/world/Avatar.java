@@ -1,4 +1,4 @@
-package pepse.world.avatar;
+package pepse.world;
 
 import danogl.GameObject;
 import danogl.gui.ImageReader;
@@ -6,7 +6,6 @@ import danogl.gui.UserInputListener;
 import danogl.gui.WindowController;
 import danogl.gui.rendering.AnimationRenderable;
 import danogl.util.Vector2;
-import pepse.world.avatar.jump.JumpNotifier;
 
 import java.awt.event.KeyEvent;
 import java.util.function.BiConsumer;

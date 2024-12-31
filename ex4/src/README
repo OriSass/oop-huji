@@ -1,0 +1,20 @@
+ori.sass,zivbengigi
+206789182,314750795
+
+Question 10.2.4:
+The manager creates: The sky, terrain, night, sun, tree's, avatar, cloud.
+Each tree is actually a trunk, a list of leaves, and a list of fruit.
+
+I used the observer design pattern for handling events that need to happen on a jump.
+In the exercise's instructions only one thing happens on that occasion- rain comes down from the cloud
+The JumpNotifier holds all jumpObservers, and notifies them on avatar jump
+Cloud implement's JumpObserver so on avatar jump it creates rain.
+
+Flora is responsible for creating all trees, at the beginning and in infinity mode.
+Same for Terrain and ground blocks.
+
+Block is the building block used to build the terrain and cloud.
+
+Avatar has energy, which is boosted when he eat's a fruit.
+if he moves: sideways or jumps it cost's him energy.
+Also can regenerate by not moving.

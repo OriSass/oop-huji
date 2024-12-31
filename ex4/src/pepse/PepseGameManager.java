@@ -13,7 +13,8 @@ import danogl.gui.WindowController;
 import danogl.gui.rendering.Camera;
 import danogl.gui.rendering.TextRenderable;
 import danogl.util.Vector2;
-import pepse.world.avatar.Avatar;
+import pepse.util.Statistics;
+import pepse.world.Avatar;
 import pepse.world.Block;
 import pepse.world.Sky;
 import pepse.world.Terrain;
@@ -44,6 +45,7 @@ public class PepseGameManager extends GameManager {
     private float terrainStart;
     private float terrainEnd;
     private Flora flora;
+    private Statistics statistics;
 
     public static void main(String[] args) {
         new PepseGameManager().run();
@@ -55,6 +57,7 @@ public class PepseGameManager extends GameManager {
         super.initializeGame(imageReader, soundReader, inputListener, windowController);
         windowController.setTargetFramerate(60);
         this.jumpNotifier = new JumpNotifier();
+        this.statistics = new Statistics(RANDOM_SEED);
         createSky(windowController);
         initTerrain(windowController);
         createTerrain();
@@ -69,7 +72,8 @@ public class PepseGameManager extends GameManager {
 
     private void createCloud(WindowController windowController) {
         this.cloud = new Cloud(windowController.getWindowDimensions(),
-                (gameObj, layer) -> this.gameObjects().addGameObject(gameObj, layer));
+                (gameObj, layer) -> this.gameObjects().addGameObject(gameObj, layer),
+                this.statistics::flipCoin);
         this.jumpNotifier.addObserver(this.cloud);
 
     }
@@ -80,7 +84,8 @@ public class PepseGameManager extends GameManager {
                 (gameObj, layer) -> this.gameObjects().addGameObject(gameObj,
                         layer) ,this::fruitHandler,
                 (gameObj, layer) -> this.gameObjects().removeGameObject(gameObj,
-                        layer), this::removeGameObjList);
+                        layer), this::removeGameObjList
+        );
         this.flora.createInRange((int) this.terrainStart, (int) this.terrainEnd);
     }
 
@@ -154,7 +159,7 @@ public class PepseGameManager extends GameManager {
     }
 
     private void initTerrain(WindowController windowController){
-        this.terrain = new Terrain(windowController.getWindowDimensions(), 5);
+        this.terrain = new Terrain(windowController.getWindowDimensions(), RANDOM_SEED);
         this.terrainStart = -1 * TERRAIN_GAP;
         this.terrainEnd = windowController.getWindowDimensions().x() + TERRAIN_GAP;
     }
@@ -235,7 +240,7 @@ public class PepseGameManager extends GameManager {
             // left
             if(needToCreateLeftWorld){
                 addStart = (int) (cameraStartX - TERRAIN_GAP);
-                addEnd =  (int) this.terrainStart;
+                addEnd = (int) Math.ceil(this.terrainStart);
                 removeStart = cameraEndX + TERRAIN_GAP;
                 removeEnd = this.terrainEnd;
             }

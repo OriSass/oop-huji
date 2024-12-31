@@ -20,7 +20,7 @@ public class Flora {
     private final BiConsumer<Fruit, GameObject> fruitHandler;
     private final BiConsumer<GameObject, Integer> removeGameObj;
     private final BiConsumer<List<GameObject>, Integer> removeListOfGameObj;
-    private List<StaticTree> trees;
+    private List<PespseTree> trees;
 
     public Flora(Function<Float, Float> getHeightByX,
                  BiConsumer<GameObject, Integer> addGameObj,
@@ -35,17 +35,20 @@ public class Flora {
         this.trees = new ArrayList<>();
     }
 
-    public List<StaticTree> createInRange(int minX, int maxX){
-        List<StaticTree> addedTrees = new ArrayList<>();
+    public List<PespseTree> createInRange(int minX, int maxX){
+        List<PespseTree> addedTrees = new ArrayList<>();
         for (float x = minX;
              x < maxX;
              x += (TREE_TRUNK_WIDTH + AVATAR_DIMENSIONS.x())) {
-            if(Statistics.flipCoin(TREE_CREATION_CHANCE)){
+            Statistics statistics = new Statistics((int) x);
+
+            if(statistics.flipCoin(TREE_CREATION_CHANCE)){
                 float trunkHeight = (float) (Math.floor(getHeightByX.apply(x) / Block.SIZE) * Block.SIZE);
                 Vector2 location = new Vector2(x, trunkHeight);
-                StaticTree tree = new StaticTree(location,
+                PespseTree tree = new PespseTree(location,
                         this.addGameObj,
-                        this.fruitHandler);
+                        this.fruitHandler
+                );
                 this.trees.add(tree);
                 addedTrees.add(tree);
             }
@@ -53,22 +56,22 @@ public class Flora {
         return addedTrees;
     }
 
-    public List<StaticTree> removeInRange(float removeStart, float removeEnd) {
-        List<StaticTree> toRemove = new ArrayList<>();
-        for (StaticTree tree : this.trees){
+    public List<PespseTree> removeInRange(float removeStart, float removeEnd) {
+        List<PespseTree> toRemove = new ArrayList<>();
+        for (PespseTree tree : this.trees){
             float treeX = tree.getTrunk().getCenter().x();
             if(treeX >= removeStart && treeX <= removeEnd){
                 toRemove.add(tree);
             }
         }
-        for (StaticTree tree : toRemove){
+        for (PespseTree tree : toRemove){
             removeTree(tree);
             this.trees.remove(tree);
         }
         return toRemove;
     }
 
-    private void removeTree(StaticTree tree) {
+    private void removeTree(PespseTree tree) {
         this.removeGameObj.accept(tree.getTrunk(), Layer.STATIC_OBJECTS);
         this.removeListOfGameObj.accept(tree.getLeaves(), Layer.STATIC_OBJECTS);
         this.removeListOfGameObj.accept(tree.getFruits(), Layer.DEFAULT);

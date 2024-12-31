@@ -11,7 +11,8 @@ public class SunHalo {
     public static GameObject create(GameObject sun){
         OvalRenderable haloRenderable = new OvalRenderable(HALO_COLOR);
         GameObject halo =
-                new GameObject(sun.getTopLeftCorner(), SUN_DIMENSIONS.mult(HALO_TO_SUN_RATIO), haloRenderable);
+                new GameObject(sun.getTopLeftCorner(),
+                        SUN_DIMENSIONS.mult(HALO_TO_SUN_RATIO), haloRenderable);
         halo.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
         halo.setTag(SUN_HALO_TAG);
         halo.addComponent((_ -> halo.setCenter(sun.getCenter())));

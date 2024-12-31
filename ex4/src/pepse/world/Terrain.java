@@ -4,8 +4,8 @@ import danogl.GameObject;
 import danogl.components.GameObjectPhysics;
 import danogl.gui.rendering.RectangleRenderable;
 import danogl.util.Vector2;
-import supplied_code.ColorSupplier;
-import supplied_code.NoiseGenerator;
+import pepse.util.ColorSupplier;
+import pepse.util.NoiseGenerator;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -26,8 +26,6 @@ public class Terrain {
     private List<Block> groundBlocks;
     private int endX;
     private int startX;
-    private static  RectangleRenderable rectangleRenderable =
-            new RectangleRenderable(ColorSupplier.approximateColor(BASE_GROUND_COLOR));
 
     public Terrain(Vector2 windowDimensions, int seed){
         this.groundHeightAtX0 = getGroundHeightAtX0(windowDimensions);
@@ -61,6 +59,8 @@ public class Terrain {
                         (float) (Math.floor(groundHeightAt(x) / Block.SIZE) * Block.SIZE +
                                 blockRow * Block.SIZE);
                 Vector2 topLeftCorner = new Vector2(x, blockYCoordinate);
+                RectangleRenderable rectangleRenderable =
+                        new RectangleRenderable(ColorSupplier.approximateColor(BASE_GROUND_COLOR));
                 Block block = new Block(topLeftCorner, rectangleRenderable);
                 block.physics().preventIntersectionsFromDirection(Vector2.ZERO);
                 block.physics().setMass(GameObjectPhysics.IMMOVABLE_MASS);
@@ -71,14 +71,14 @@ public class Terrain {
         return nowAdded;
     }
 
-    private int getTerrainEndX(int startX, int maxX) {
+    public static int getTerrainEndX(int startX, int maxX) {
         while (startX < maxX){
             startX += Block.SIZE;
         }
         return startX;
     }
 
-    private int getTerrainStartX(int minX) {
+    public static int getTerrainStartX(int minX) {
         if(minX % Block.SIZE == 0){
             return minX;
         }

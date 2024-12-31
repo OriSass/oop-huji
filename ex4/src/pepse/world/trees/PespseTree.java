@@ -9,18 +9,19 @@ import danogl.gui.rendering.OvalRenderable;
 import danogl.gui.rendering.RectangleRenderable;
 import danogl.util.Vector2;
 import pepse.util.Statistics;
-import supplied_code.ColorSupplier;
+import pepse.util.ColorSupplier;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.function.BiConsumer;
 
 import static pepse.util.Constants.*;
 
-public class StaticTree {
+public class PespseTree {
 
-    static Random random = new Random();
+    Random random;
 
     Vector2 location;
     Vector2 trunkDimensions;
@@ -29,8 +30,10 @@ public class StaticTree {
     private List<GameObject> fruits;
     private BiConsumer<Fruit, GameObject> fruitHandler;
 
-    public StaticTree(Vector2 location, BiConsumer<GameObject, Integer> addGameObj, BiConsumer<Fruit, GameObject> fruitHandler){
+    public PespseTree(Vector2 location, BiConsumer<GameObject, Integer> addGameObj,
+                      BiConsumer<Fruit, GameObject> fruitHandler){
         this.fruitHandler = fruitHandler;
+        this.random = new Random(RANDOM_SEED);
         this.trunkDimensions = new Vector2(TREE_TRUNK_WIDTH, getRandomTreeHeight());
         this.location = location.subtract(new Vector2(0, this.trunkDimensions.y()));
         createTrunk(addGameObj);
@@ -54,14 +57,16 @@ public class StaticTree {
         Vector2 treeTopLeftCorner = getTreeTopLeftCorner();
         Vector2 lastLeafLocation = treeTopLeftCorner.add(LEAF_GRID);
 
+        Statistics statistics = new Statistics(Objects.hash(this.trunk.getCenter().x(), RANDOM_SEED));
+
         for (float y = treeTopLeftCorner.y(); y < lastLeafLocation.y();
              y+= LEAF_DIMENSIONS.y() + LEAF_PADDING) {
             for (float x = treeTopLeftCorner.x(); x < lastLeafLocation.x();
                  x+= LEAF_DIMENSIONS.x() + LEAF_PADDING) {
-                if(Statistics.flipCoin(LEAF_CREATION_CHANCE)){
+                if(statistics.flipCoin(LEAF_CREATION_CHANCE)){
                     createLeaf(addGameObj, x, y);
                 }
-                else if(Statistics.flipCoin(FRUIT_CREATION_CHANCE)){
+                else if(statistics.flipCoin(FRUIT_CREATION_CHANCE)){
                     createFruit(addGameObj, x + FRUIT_PADDING, y + FRUIT_PADDING);
                 }
             }
@@ -133,7 +138,7 @@ public class StaticTree {
         return new Vector2(x,y);
     }
 
-    private static float getRandomTreeHeight() {
+    private float getRandomTreeHeight() {
         return random.nextFloat(TREE_MIN_HEIGHT, TREE_MAX_HEIGHT);
     }
 

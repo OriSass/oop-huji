@@ -6,16 +6,16 @@ import danogl.components.CoordinateSpace;
 import danogl.components.Transition;
 import danogl.gui.rendering.RectangleRenderable;
 import danogl.util.Vector2;
-import pepse.util.Statistics;
 import pepse.world.Block;
 import pepse.world.avatar.jump.JumpObserver;
-import supplied_code.ColorSupplier;
+import pepse.util.ColorSupplier;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 import static pepse.PepseGameManager.CLOUD_CYCLE_LENGTH;
 import static pepse.util.Constants.*;
@@ -39,9 +39,14 @@ public class Cloud implements JumpObserver {
             new RectangleRenderable(ColorSupplier.approximateMonoColor(BASE_CLOUD_COLOR));
     private final ArrayList<Block> cloudBlocks;
     private final BiConsumer<GameObject, Integer> addGameObj;
+    private final Function<Float, Boolean> isRainDropCreatedCallback;
 
-    public Cloud(Vector2 windowDimensions, BiConsumer<GameObject, Integer> addGameObj) {
+    public Cloud(Vector2 windowDimensions,
+                 BiConsumer<GameObject, Integer> addGameObj,
+                 Function<Float, Boolean> isRainDropCreatedCallback
+                 ) {
         this.addGameObj = addGameObj;
+        this.isRainDropCreatedCallback = isRainDropCreatedCallback;
         this.cloudBlocks = new ArrayList<>();
         for (int i = 0; i < cloudBlockIndexes.size(); i++){
             List<Integer> cloudBlockRow = cloudBlockIndexes.get(i);
@@ -75,10 +80,12 @@ public class Cloud implements JumpObserver {
                 cloudBlock,
                 (_) -> {
                     if(cloudBlock.getTopLeftCorner().x() > windowDimensions.x() + CLOUD_LENGTH * 2 ){
-                        cloudBlock.setCenter(new Vector2(-cloudBlock.getDimensions().x(), cloudBlock.getCenter().y()));
+                        cloudBlock.setCenter(new Vector2(-cloudBlock.getDimensions().x(),
+                                cloudBlock.getCenter().y()));
                     }
                     else{
-                        cloudBlock.setTopLeftCorner(cloudBlock.getTopLeftCorner().add(CLOUD_MOVEMENT_VECTOR));
+                        cloudBlock.setTopLeftCorner(
+                                cloudBlock.getTopLeftCorner().add(CLOUD_MOVEMENT_VECTOR));
                     }
                 },
                 0f,
@@ -102,7 +109,7 @@ public class Cloud implements JumpObserver {
         Vector2 dimensions = new Vector2(20f, 20f);
 
         for (float dropX = cloudStartX; dropX <= cloudEndX; dropX+= Block.SIZE) {
-            if (Statistics.flipCoin(RAIN_DROP_CHANCE)){
+            if (isRainDropCreatedCallback.apply(RAIN_DROP_CHANCE)){
                 float dropY = random.nextFloat(cloudEndY, cloudEndY + Block.SIZE);
                 Vector2 dropLocation = new Vector2(dropX, dropY);
                 GameObject drop = new GameObject(dropLocation, dimensions, dropRenderable);
