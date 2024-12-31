@@ -13,15 +13,45 @@ import java.util.function.Function;
 
 import static pepse.util.Constants.*;
 
+/**
+ * A class representing the flora in the game, responsible for creating and managing trees.
+ */
 public class Flora {
 
+    /**
+     * Function to get the height by x-coordinate.
+     */
     Function<Float,Float> getHeightByX;
+    /**
+     * Consumer to add a game object.
+     */
     private final BiConsumer<GameObject, Integer> addGameObj;
+    /**
+     * Consumer to handle fruit-related actions.
+     */
     private final BiConsumer<Fruit, GameObject> fruitHandler;
+    /**
+     * Consumer to remove a game object.
+     */
     private final BiConsumer<GameObject, Integer> removeGameObj;
+    /**
+     * Consumer to remove a list of game objects.
+     */
     private final BiConsumer<List<GameObject>, Integer> removeListOfGameObj;
-    private List<PespseTree> trees;
+    /**
+     * List of trees in the flora.
+     */
+    private List<PepseTree> trees;
 
+    /**
+     * Constructs a Flora object.
+     *
+     * @param getHeightByX function to get the height by x-coordinate
+     * @param addGameObj consumer to add a game object
+     * @param fruitHandler consumer to handle fruit-related actions
+     * @param removeGameObj consumer to remove a game object
+     * @param removeListOfGameObj consumer to remove a list of game objects
+     */
     public Flora(Function<Float, Float> getHeightByX,
                  BiConsumer<GameObject, Integer> addGameObj,
                  BiConsumer<Fruit, GameObject> fruitHandler,
@@ -35,8 +65,15 @@ public class Flora {
         this.trees = new ArrayList<>();
     }
 
-    public List<PespseTree> createInRange(int minX, int maxX){
-        List<PespseTree> addedTrees = new ArrayList<>();
+    /**
+     * Creates trees in the specified range.
+     *
+     * @param minX the minimum x-coordinate
+     * @param maxX the maximum x-coordinate
+     * @return the list of added trees
+     */
+    public List<PepseTree> createInRange(int minX, int maxX){
+        List<PepseTree> addedTrees = new ArrayList<>();
         for (float x = minX;
              x < maxX;
              x += (TREE_TRUNK_WIDTH + AVATAR_DIMENSIONS.x())) {
@@ -45,7 +82,7 @@ public class Flora {
             if(statistics.flipCoin(TREE_CREATION_CHANCE)){
                 float trunkHeight = (float) (Math.floor(getHeightByX.apply(x) / Block.SIZE) * Block.SIZE);
                 Vector2 location = new Vector2(x, trunkHeight);
-                PespseTree tree = new PespseTree(location,
+                PepseTree tree = new PepseTree(location,
                         this.addGameObj,
                         this.fruitHandler
                 );
@@ -56,27 +93,45 @@ public class Flora {
         return addedTrees;
     }
 
-    public List<PespseTree> removeInRange(float removeStart, float removeEnd) {
-        List<PespseTree> toRemove = new ArrayList<>();
-        for (PespseTree tree : this.trees){
+    /**
+     * Removes trees in the specified range.
+     *
+     * @param removeStart the start x-coordinate of the range
+     * @param removeEnd the end x-coordinate of the range
+     * @return the list of removed trees
+     */
+    public List<PepseTree> removeInRange(float removeStart, float removeEnd) {
+        List<PepseTree> toRemove = new ArrayList<>();
+        for (PepseTree tree : this.trees){
             float treeX = tree.getTrunk().getCenter().x();
             if(treeX >= removeStart && treeX <= removeEnd){
                 toRemove.add(tree);
             }
         }
-        for (PespseTree tree : toRemove){
+        for (PepseTree tree : toRemove){
             removeTree(tree);
             this.trees.remove(tree);
         }
         return toRemove;
     }
 
-    private void removeTree(PespseTree tree) {
+    /**
+     * Removes a tree.
+     *
+     * @param tree the tree to be removed
+     */
+    private void removeTree(PepseTree tree) {
         this.removeGameObj.accept(tree.getTrunk(), Layer.STATIC_OBJECTS);
         this.removeListOfGameObj.accept(tree.getLeaves(), Layer.STATIC_OBJECTS);
         this.removeListOfGameObj.accept(tree.getFruits(), Layer.DEFAULT);
     }
 
+    /**
+     * Checks if a tree exists by a given fruit.
+     * used for preventing fruit re-spawning on a non existing tree
+     * @param fruit the fruit to check
+     * @return true if the tree exists, false otherwise
+     */
     public boolean treeExistsByFruit(GameObject fruit){
         if(!(fruit instanceof Fruit)){
             throw new IllegalArgumentException("arg isn't a fruit!");

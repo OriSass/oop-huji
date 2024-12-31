@@ -13,35 +13,84 @@ import java.util.List;
 
 import static pepse.util.Constants.DEFAULT_BASE_GROUND_COLOR;
 
+/**
+ * A class representing the terrain in the game.
+ */
 public class Terrain {
+    /**
+     * The factor that determines the chaos in the terrain generation.
+     */
     private static final float CHAOS_FACTOR = Block.SIZE * 7;
-
-
+    /**
+     * The initial ground height at x = 0.
+     */
     private final float groundHeightAtX0;
-    private final int seed;
+    /**
+     * The base color of the ground.
+     */
     private static final Color BASE_GROUND_COLOR = DEFAULT_BASE_GROUND_COLOR;
+    /**
+     * The depth of the terrain in blocks.
+     */
     private static final int TERRAIN_DEPTH = 20;
+    /**
+     * The noise generator for terrain height.
+     */
     private final NoiseGenerator noiseGenerator;
 
+    /**
+     * The list of ground blocks in the terrain.
+     */
     private List<Block> groundBlocks;
+    /**
+     * The end x-coordinate of the terrain.
+     */
     private int endX;
+
+    /**
+     * The start x-coordinate of the terrain.
+     */
     private int startX;
 
+    /**
+     * Constructs a new Terrain instance.
+     *
+     * @param windowDimensions The dimensions of the window.
+     * @param seed The seed for the noise generator.
+     */
     public Terrain(Vector2 windowDimensions, int seed){
         this.groundHeightAtX0 = getGroundHeightAtX0(windowDimensions);
-        this.seed = seed;
         noiseGenerator = new NoiseGenerator(seed, (int) groundHeightAtX0);
     }
 
+    /**
+     * Gets the ground height at x = 0 based on the window dimensions.
+     *
+     * @param windowDimensions The dimensions of the window.
+     * @return The ground height at x = 0.
+     */
     public static float getGroundHeightAtX0(Vector2 windowDimensions){
         return windowDimensions.y() * ((float) 2 /3);
     }
 
+    /**
+     * Gets the ground height at a given x-coordinate.
+     *
+     * @param x The x-coordinate.
+     * @return The ground height at the given x-coordinate.
+     */
     public float groundHeightAt(float x){
         float noise = (float) noiseGenerator.noise(x, CHAOS_FACTOR);
         return groundHeightAtX0 + noise;
     }
 
+    /**
+     * Creates terrain in the specified range.
+     *
+     * @param minX The minimum x-coordinate.
+     * @param maxX The maximum x-coordinate.
+     * @return The list of ground blocks created in the specified range.
+     */
     public List<Block> createInRange(int minX, int maxX){
         this.startX = getTerrainStartX(minX);
         this.endX = getTerrainEndX(startX, maxX);
@@ -51,6 +100,13 @@ public class Terrain {
         return this.groundBlocks;
     }
 
+    /**
+     * Adds terrain blocks in the specified range.
+     *
+     * @param min The minimum x-coordinate.
+     * @param max The maximum x-coordinate.
+     * @return The list of game objects added.
+     */
     private List<GameObject> addTerrain(int min, int max) {
         List<GameObject> nowAdded = new ArrayList<>();
         for (int blockRow = 0; blockRow < TERRAIN_DEPTH; blockRow++) {
@@ -71,6 +127,13 @@ public class Terrain {
         return nowAdded;
     }
 
+    /**
+     * Gets the end x-coordinate of the terrain based on the start x-coordinate and maximum x-coordinate.
+     *
+     * @param startX The start x-coordinate.
+     * @param maxX The maximum x-coordinate.
+     * @return The end x-coordinate of the terrain.
+     */
     public static int getTerrainEndX(int startX, int maxX) {
         while (startX < maxX){
             startX += Block.SIZE;
@@ -78,6 +141,12 @@ public class Terrain {
         return startX;
     }
 
+    /**
+     * Gets the start x-coordinate of the terrain based on the minimum x-coordinate.
+     *
+     * @param minX The minimum x-coordinate.
+     * @return The start x-coordinate of the terrain.
+     */
     public static int getTerrainStartX(int minX) {
         if(minX % Block.SIZE == 0){
             return minX;
@@ -98,10 +167,24 @@ public class Terrain {
         }
     }
 
+    /**
+     * Adds terrain blocks for infinite terrain generation in the specified range.
+     *
+     * @param min The minimum x-coordinate.
+     * @param max The maximum x-coordinate.
+     * @return The list of game objects added.
+     */
     public List<GameObject> addTerrainForInfinite(int min, int max){
         return addTerrain(min, max);
     }
 
+    /**
+     * Gets the blocks in the specified x-coordinate range.
+     *
+     * @param minX The minimum x-coordinate.
+     * @param maxX The maximum x-coordinate.
+     * @return The list of blocks in the specified range.
+     */
     public List<GameObject> getBlocks(float minX, float maxX) {
         List<GameObject> blocks = new ArrayList<>();
         for (Block block : this.groundBlocks){
@@ -112,6 +195,11 @@ public class Terrain {
         return blocks;
     }
 
+    /**
+     * Removes the specified blocks from the terrain.
+     *
+     * @param blocksToRemove The list of blocks to remove.
+     */
     public void removeTerrain(List<GameObject> blocksToRemove) {
         this.groundBlocks.removeAll(blocksToRemove);
     }

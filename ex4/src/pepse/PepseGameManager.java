@@ -31,26 +31,88 @@ import java.util.function.Function;
 
 import static pepse.util.Constants.*;
 
+/**
+ * The main game manager class for the Pepse game.
+ */
 public class PepseGameManager extends GameManager {
 
+    /**
+     * The default length of the day cycle.
+     */
     public static final float DEFAULT_DAY_CYCLE_LENGTH = 30f;
+
+    /**
+     * The length of the cloud cycle.
+     */
     public static final float CLOUD_CYCLE_LENGTH = 100f;
+
+    /**
+     * The opacity of the night at midnight.
+     */
     private static final Float MIDNIGHT_OPACITY = 0.5f;
+
+    /**
+     * The game object representing the energy display.
+     */
     private GameObject energyDisplay;
+
+    /**
+     * The terrain in the game.
+     */
     private Terrain terrain;
+
+    /**
+     * The avatar in the game.
+     */
     private Avatar avatar;
+
+    /**
+     * The jump notifier for the avatar.
+     */
     private JumpNotifier jumpNotifier;
+
+    /**
+     * The cloud observer for the avatar's jumps.
+     */
     private Cloud cloud;
 
+    /**
+     * The start x-coordinate of the terrain.
+     */
     private float terrainStart;
+
+    /**
+     * The end x-coordinate of the terrain.
+     */
     private float terrainEnd;
+
+    /**
+     * The flora in the game.
+     */
     private Flora flora;
+
+    /**
+     * The statistics utility for the game.
+     */
     private Statistics statistics;
 
+    /**
+     * The main method to run the game.
+     *
+     * @param args Command line arguments.
+     */
     public static void main(String[] args) {
         new PepseGameManager().run();
     }
 
+    /**
+     * Initializes the game.
+     *
+     * @param imageReader The image reader.
+     * @param soundReader The sound reader.
+     * @param inputListener The user input listener.
+     * @param windowController The window controller.
+     */
     @Override
     public void initializeGame(ImageReader imageReader, SoundReader soundReader,
                                UserInputListener inputListener, WindowController windowController) {
@@ -69,7 +131,11 @@ public class PepseGameManager extends GameManager {
         setCamera(new Camera(this.avatar, Vector2.ZERO,
                 windowController.getWindowDimensions(), windowController.getWindowDimensions()));
     }
-
+    /**
+     * Creates the cloud observer for the avatar's jumps.
+     *
+     * @param windowController The window controller.
+     */
     private void createCloud(WindowController windowController) {
         this.cloud = new Cloud(windowController.getWindowDimensions(),
                 (gameObj, layer) -> this.gameObjects().addGameObject(gameObj, layer),
@@ -77,7 +143,11 @@ public class PepseGameManager extends GameManager {
         this.jumpNotifier.addObserver(this.cloud);
 
     }
-
+    /**
+     * Creates the flora in the game.
+     *
+     * @param getHeightByX Function to get the ground height by x-coordinate.
+     */
     private void createFlora(Function<Float,Float> getHeightByX) {
         this.flora = new Flora(
                 getHeightByX,
@@ -90,7 +160,10 @@ public class PepseGameManager extends GameManager {
     }
 
     /**
-     * Creates the strikes left information display.
+     * Creates the energy display.
+     *
+     * @param energy The current energy level.
+     * @param windowController The window controller.
      */
     public void createEnergyDisplay(float energy, WindowController windowController) {
         TextRenderable energyRenderable = new TextRenderable(String.valueOf((int) energy));
@@ -102,11 +175,21 @@ public class PepseGameManager extends GameManager {
         this.gameObjects().addGameObject(this.energyDisplay, Layer.UI);
     }
 
+    /**
+     * Removes the energy display.
+     */
     public void removeEnergyDisplay() {
         this.gameObjects().removeGameObject(this.energyDisplay, Layer.UI);
     }
 
-
+    /**
+     * Creates the avatar in the game.
+     *
+     * @param imageReader The image reader.
+     * @param inputListener The user input listener.
+     * @param windowController The window controller.
+     * @param getHeightByX Function to get the ground height by x-coordinate.
+     */
     private void createAvatar(ImageReader imageReader, UserInputListener inputListener,
                               WindowController windowController, Function<Float,Float> getHeightByX) {
         float x = windowController.getWindowDimensions().x() / 2;
@@ -145,6 +228,11 @@ public class PepseGameManager extends GameManager {
         }
     }
 
+    /**
+     * Creates the sun in the game.
+     *
+     * @param windowController The window controller.
+     */
     private void createSun(WindowController windowController) {
         GameObject sun = Sun.create(windowController.getWindowDimensions(), DEFAULT_DAY_CYCLE_LENGTH);
         createSunTransition(sun, windowController.getWindowDimensions());
@@ -152,17 +240,30 @@ public class PepseGameManager extends GameManager {
         this.gameObjects().addGameObject(sun, Layer.BACKGROUND);
     }
 
+    /**
+     * Creates the night effect in the game.
+     *
+     * @param windowController The window controller.
+     */
     private void createNight(WindowController windowController) {
         GameObject night = Night.create(windowController.getWindowDimensions(), DEFAULT_DAY_CYCLE_LENGTH);
         createNightTransition(night);
         this.gameObjects().addGameObject(night, Layer.FOREGROUND);
     }
 
+    /**
+     * Initializes the terrain in the game.
+     *
+     * @param windowController The window controller.
+     */
     private void initTerrain(WindowController windowController){
         this.terrain = new Terrain(windowController.getWindowDimensions(), RANDOM_SEED);
         this.terrainStart = -1 * TERRAIN_GAP;
         this.terrainEnd = windowController.getWindowDimensions().x() + TERRAIN_GAP;
     }
+    /**
+     * Creates the terrain in the game.
+     */
     private void createTerrain() {
         List<Block> blocks = terrain.createInRange((int) this.terrainStart, (int) this.terrainEnd);
         for (Block block : blocks) {
@@ -170,11 +271,21 @@ public class PepseGameManager extends GameManager {
         }
     }
 
+    /**
+     * Creates the sky in the game.
+     *
+     * @param windowController The window controller.
+     */
     private void createSky(WindowController windowController) {
         GameObject sky = Sky.create(windowController.getWindowDimensions());
         this.gameObjects().addGameObject(sky, Layer.BACKGROUND);
     }
 
+    /**
+     * Creates the transition for the night effect.
+     *
+     * @param night The night game object.
+     */
     private void createNightTransition(GameObject night) {
         new Transition<Float>(
                 night,
@@ -185,6 +296,13 @@ public class PepseGameManager extends GameManager {
                 DEFAULT_DAY_CYCLE_LENGTH / 2,
                 Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);
     }
+
+    /**
+     * Creates the transition for the sun.
+     *
+     * @param sun The sun game object.
+     * @param windowDimensions The dimensions of the window.
+     */
     private void createSunTransition(GameObject sun, Vector2 windowDimensions) {
         Vector2 initialSunCenter = sun.getCenter();
         Vector2 cycleCenter =
@@ -193,36 +311,61 @@ public class PepseGameManager extends GameManager {
                 sun,
                 (angle) -> sun.setCenter(initialSunCenter.
                         subtract(cycleCenter).rotated(angle).add(cycleCenter)),
-                0f,
-                360f, // final opacity
+                SUN_TRANSITION_START_VALUE,
+                SUN_TRANSITION_END_VALUE, // final opacity
                 Transition.LINEAR_INTERPOLATOR_FLOAT,
                 DEFAULT_DAY_CYCLE_LENGTH,
                 Transition.TransitionType.TRANSITION_LOOP, null);
     }
 
+    /**
+     * Creates the sun halo in the game.
+     *
+     * @param sun The sun game object.
+     */
     private void createSunHalo(GameObject sun) {
         GameObject sunHalo = SunHalo.create(sun);
         this.gameObjects().addGameObject(sunHalo, Layer.BACKGROUND);
     }
 
+    /**
+     * Updates the game state.
+     *
+     * @param deltaTime The time that has passed since the last update.
+     */
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
         adjustInfiniteWorld();
     }
 
+    /**
+     * Adds a list of game objects to the game.
+     *
+     * @param gameObjList The list of game objects.
+     * @param layer The layer to add the game objects to.
+     */
     private void addGameObjList(List<GameObject> gameObjList, int layer){
         for(GameObject gameObj : gameObjList){
             this.gameObjects().addGameObject(gameObj, layer);
         }
     }
 
+    /**
+     * Removes a list of game objects from the game.
+     *
+     * @param gameObjList The list of game objects.
+     * @param layer The layer to remove the game objects from.
+     */
     public void removeGameObjList(List<GameObject> gameObjList, int layer){
         for(GameObject gameObj : gameObjList){
             this.gameObjects().removeGameObject(gameObj, layer);
         }
     }
 
+    /**
+     * Adjusts the infinite world by adding and removing terrain and flora as needed.
+     */
     private void adjustInfiniteWorld() {
         float cameraStartX = this.camera().getTopLeftCorner().x();
         float cameraEndX = cameraStartX + this.camera().getDimensions().x();
@@ -252,16 +395,40 @@ public class PepseGameManager extends GameManager {
         }
     }
 
+    /**
+     * Changes the world by adding and removing terrain and flora.
+     *
+     * @param addStart The start x-coordinate to add.
+     * @param addEnd The end x-coordinate to add.
+     * @param removeStart The start x-coordinate to remove.
+     * @param removeEnd The end x-coordinate to remove.
+     */
     private void changeWorld(int addStart, int addEnd, float removeStart, float removeEnd) {
         changeTerrain(addStart, addEnd, removeStart, removeEnd);
         changeFlora(addStart, addEnd, removeStart, removeEnd);
     }
 
+    /**
+     * Changes the flora by adding and removing flora.
+     *
+     * @param addStart The start x-coordinate to add.
+     * @param addEnd The end x-coordinate to add.
+     * @param removeStart The start x-coordinate to remove.
+     * @param removeEnd The end x-coordinate to remove.
+     */
     private void changeFlora(int addStart, int addEnd, float removeStart, float removeEnd) {
         this.flora.createInRange(addStart, addEnd);
         this.flora.removeInRange(removeStart, removeEnd);
     }
 
+    /**
+     * Changes the terrain by adding and removing terrain blocks.
+     *
+     * @param addStart The start x-coordinate to add.
+     * @param addEnd The end x-coordinate to add.
+     * @param removeStart The start x-coordinate to remove.
+     * @param removeEnd The end x-coordinate to remove.
+     */
     private void changeTerrain(int addStart, int addEnd, float removeStart, float removeEnd) {
         List<GameObject> addedBlocks = this.terrain.addTerrainForInfinite(addStart, addEnd);
         this.addGameObjList(addedBlocks, Layer.STATIC_OBJECTS);

@@ -12,20 +12,73 @@ import java.util.function.BiConsumer;
 
 import static pepse.util.Constants.*;
 
+/**
+ * A class representing the avatar in the game.
+ */
 public class Avatar extends GameObject {
 
+    /**
+     * Listener for user input.
+     */
     private final UserInputListener inputListener;
+
+    /**
+     * Runnable to remove the energy display.
+     */
     private final Runnable energyDisplayRemover;
+
+    /**
+     * Runnable to notify observers when the avatar jumps.
+     */
     private final Runnable notifyJumpObservers;
+
+    /**
+     * Callback to update the energy display.
+     */
     BiConsumer<Float, WindowController> energyDisplayCallback;
+
+    /**
+     * The current energy level of the avatar.
+     */
     private Float energy;
+
+    /**
+     * Reader for loading images.
+     */
     private final ImageReader imageReader;
+
+    /**
+     * Controller for the game window.
+     */
     WindowController windowController;
 
+    /**
+     * Animation for the avatar when idle.
+     */
     AnimationRenderable idleAnimation;
+
+    /**
+     * Animation for the avatar when jumping.
+     */
     AnimationRenderable jumpAnimation;
+
+    /**
+     * Animation for the avatar when running.
+     */
     AnimationRenderable runAnimation;
 
+    /**
+     * Constructs a new Avatar instance.
+     *
+     * @param topLeftCorner Position of the object, in window coordinates (pixels).
+     *                      Note that (0,0) is the top-left corner of the window.
+     * @param inputListener Listener for user input.
+     * @param imageReader Reader for loading images.
+     * @param windowController Controller for the game window.
+     * @param energyDisplayCallback Callback to update the energy display.
+     * @param energyDisplayRemover Runnable to remove the energy display.
+     * @param notifyJumpObservers Runnable to notify observers when the avatar jumps.
+     */
     public Avatar(Vector2 topLeftCorner, UserInputListener inputListener,
                   ImageReader imageReader, WindowController windowController,
                   BiConsumer<Float, WindowController> energyDisplayCallback, Runnable energyDisplayRemover,
@@ -43,6 +96,9 @@ public class Avatar extends GameObject {
 
     }
 
+    /**
+     * Initializes the avatar's properties.
+     */
     private void initAvatar() {
         this.energy = DEFAULT_ENERGY_MAX;
         setTag(AVATAR_TAG);
@@ -53,6 +109,9 @@ public class Avatar extends GameObject {
         renderer().setRenderable(this.idleAnimation);
     }
 
+    /**
+     * Initializes the avatar's animations.
+     */
     private void initAnimations() {
         this.idleAnimation = new AnimationRenderable(
                 IDLE_ANIMATION_ARR,
@@ -81,6 +140,9 @@ public class Avatar extends GameObject {
         updateAnimation();
     }
 
+    /**
+     * Updates the avatar's animation based on its state.
+     */
     private void updateAnimation() {
         if(getVelocity().isZero()){
             renderer().setRenderable(this.idleAnimation);
@@ -93,11 +155,17 @@ public class Avatar extends GameObject {
         }
     }
 
+    /**
+     * Displays the avatar's energy level.
+     */
     private void displayEnergy() {
         this.energyDisplayRemover.run();
         this.energyDisplayCallback.accept(this.energy, this.windowController);
     }
 
+    /**
+     * Regenerates the avatar's energy when it is not moving.
+     */
     private void regenerateEnergy() {
         if(transform().getVelocity().isZero()){
             this.energy += ENERGY_REGENERATION_RATE;
@@ -107,7 +175,13 @@ public class Avatar extends GameObject {
         }
     }
 
-    // will be used later in game dev
+    /**
+     * Adds energy to the avatar.
+     * called when the avatar eats a fruit.
+     *
+     * @param energy The amount of energy to add.
+     * @return True if energy was added, false otherwise.
+     */
     public boolean addToEnergy(float energy){
         if(this.energy >= DEFAULT_ENERGY_MAX){
             return false;
@@ -119,6 +193,9 @@ public class Avatar extends GameObject {
         return true;
     }
 
+    /**
+     * Makes the avatar jump if the space key is pressed and the avatar has enough energy.
+     */
     private void jumpByEnter() {
         if(this.energy < JUMP_ENERGY_COST){
             return;
@@ -155,6 +232,12 @@ public class Avatar extends GameObject {
         }
     }
 
+    /**
+     * Determines if this avatar should collide with another game object.
+     *
+     * @param other The other game object.
+     * @return True if the other game object is allowed to collide with the avatar, false otherwise.
+     */
     @Override
     public boolean shouldCollideWith(GameObject other) {
         return ALLOWED_TO_COLLIDE_WITH_AVATAR.stream().anyMatch(tag -> tag.equals(other.getTag()));

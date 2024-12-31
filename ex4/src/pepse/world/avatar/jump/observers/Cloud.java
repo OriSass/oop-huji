@@ -20,11 +20,24 @@ import java.util.function.Function;
 import static pepse.PepseGameManager.CLOUD_CYCLE_LENGTH;
 import static pepse.util.Constants.*;
 
+/**
+ * A class representing a cloud that observes avatar jumps and creates rain.
+ */
 public class Cloud implements JumpObserver {
 
+    /**
+     * Random number generator for creating raindrops.
+     */
     private static Random random = new Random();
+
+    /**
+     * Base color of the cloud.
+     */
     private static final Color BASE_CLOUD_COLOR = new Color(255, 255, 255);
 
+    /**
+     * Indexes representing the structure of the cloud blocks.
+     */
     private static final List<List<Integer>> cloudBlockIndexes = List.of(
             List.of(0, 1, 1),
             List.of(1, 1, 0),
@@ -34,13 +47,31 @@ public class Cloud implements JumpObserver {
             List.of(1, 1, 1),
             List.of(0, 1, 1)
     );
-
+    /**
+     * Renderable for the cloud blocks.
+     */
     private static final RectangleRenderable renderable =
             new RectangleRenderable(ColorSupplier.approximateMonoColor(BASE_CLOUD_COLOR));
+    /**
+     * List of cloud blocks that make up the cloud.
+     */
     private final ArrayList<Block> cloudBlocks;
+    /**
+     * Callback to add a game object to the game.
+     */
     private final BiConsumer<GameObject, Integer> addGameObj;
+    /**
+     * Callback to determine if a raindrop should be created.
+     */
     private final Function<Float, Boolean> isRainDropCreatedCallback;
 
+    /**
+     * Constructs a Cloud object.
+     *
+     * @param windowDimensions the dimensions of the game window
+     * @param addGameObj a callback to add a game object to the game
+     * @param isRainDropCreatedCallback a callback to determine if a raindrop should be created
+     */
     public Cloud(Vector2 windowDimensions,
                  BiConsumer<GameObject, Integer> addGameObj,
                  Function<Float, Boolean> isRainDropCreatedCallback
@@ -60,9 +91,14 @@ public class Cloud implements JumpObserver {
         }
     }
 
-
-
-
+    /**
+     * Creates a cloud cell block at the specified row and column.
+     *
+     * @param windowDimensions the dimensions of the game window
+     * @param row the row index of the cloud cell block
+     * @param col the column index of the cloud cell block
+     * @return the created cloud cell block
+     */
     private Block createCloudCellBlock(Vector2 windowDimensions, int row, int col) {
         Vector2 padding = new Vector2(row * Block.SIZE, col * Block.SIZE);
         Vector2 currentLocation = CLOUD_START_LOCATION.add(padding);
@@ -75,6 +111,13 @@ public class Cloud implements JumpObserver {
         return cloudCellBlock;
     }
 
+    /**
+     * Creates a transition for the cloud block to move across the screen.
+     *
+     * @param cloudBlock the cloud block to create the transition for
+     * @param windowDimensions the dimensions of the game window
+     * @param currentLocation the current location of the cloud block
+     */
     public void createCloudTransition(Block cloudBlock, Vector2 windowDimensions, Vector2 currentLocation){
         new Transition<Float>(
                 cloudBlock,
@@ -95,11 +138,17 @@ public class Cloud implements JumpObserver {
                 Transition.TransitionType.TRANSITION_LOOP, null);
     }
 
+    /**
+     * Called when the avatar jumps, triggering the creation of rain.
+     */
     @Override
     public void onJump() {
         createRain();
     }
 
+    /**
+     * Creates rain by generating raindrops at random positions within the cloud.
+     */
     private void createRain() {
         RectangleRenderable dropRenderable =
                 new RectangleRenderable(ColorSupplier.approximateColor(Color.BLUE));
@@ -122,6 +171,11 @@ public class Cloud implements JumpObserver {
 
     }
 
+    /**
+     * Creates a transition for the raindrop to fade out.
+     *
+     * @param drop the raindrop to create the transition for
+     */
     private void createDropTransition(GameObject drop) {
         new Transition<Float>(
                 drop,

@@ -10,6 +10,8 @@ import java.util.List;
 public class Constants {
 
     public static final Vector2 SUN_DIMENSIONS = new Vector2(50, 50);
+    public static final float SUN_TRANSITION_START_VALUE = 0f;
+    public static final float SUN_TRANSITION_END_VALUE = 360f;
     public static final int DEFAULT_BLOCK_SIZE = 30;
     public static final float HALO_TO_SUN_RATIO = 1.5f;
 

@@ -19,19 +19,55 @@ import java.util.function.BiConsumer;
 
 import static pepse.util.Constants.*;
 
-public class PespseTree {
+/**
+ * A class representing a tree in the game.
+ */
+public class PepseTree {
 
+    /**
+     * Random number generator for tree properties.
+     */
     Random random;
 
+    /**
+     * Location of the tree.
+     */
     Vector2 location;
+
+    /**
+     * Dimensions of the tree trunk.
+     */
     Vector2 trunkDimensions;
+
+    /**
+     * The trunk game object of the tree.
+     */
     private GameObject trunk;
+
+    /**
+     * List of leaf game objects of the tree.
+     */
     private List<GameObject> leaves;
+
+    /**
+     * List of fruit game objects of the tree.
+     */
     private List<GameObject> fruits;
+
+    /**
+     * Callback for handling fruit-related actions.
+     */
     private BiConsumer<Fruit, GameObject> fruitHandler;
 
-    public PespseTree(Vector2 location, BiConsumer<GameObject, Integer> addGameObj,
-                      BiConsumer<Fruit, GameObject> fruitHandler){
+    /**
+     * Constructs a new PepseTree instance.
+     *
+     * @param location The location of the tree.
+     * @param addGameObj Callback to add a game object.
+     * @param fruitHandler Callback to handle fruit-related actions.
+     */
+    public PepseTree(Vector2 location, BiConsumer<GameObject, Integer> addGameObj,
+                     BiConsumer<Fruit, GameObject> fruitHandler){
         this.fruitHandler = fruitHandler;
         this.random = new Random(RANDOM_SEED);
         this.trunkDimensions = new Vector2(TREE_TRUNK_WIDTH, getRandomTreeHeight());
@@ -40,6 +76,11 @@ public class PespseTree {
         createTreeTop(addGameObj);
     }
 
+    /**
+     * Creates the trunk of the tree.
+     *
+     * @param addGameObj Callback to add a game object.
+     */
     private void createTrunk(BiConsumer<GameObject, Integer> addGameObj) {
         RectangleRenderable trunkRenderable =
                 new RectangleRenderable(ColorSupplier.approximateColor(TRUNK_BASE_COLOR));
@@ -50,6 +91,11 @@ public class PespseTree {
         addGameObj.accept(this.trunk, Layer.STATIC_OBJECTS);
     }
 
+    /**
+     * Creates the top part of the tree, including leaves and fruits.
+     *
+     * @param addGameObj Callback to add a game object.
+     */
     private void createTreeTop(BiConsumer<GameObject, Integer> addGameObj) {
         this.leaves = new ArrayList<>();
         this.fruits = new ArrayList<>();
@@ -73,6 +119,13 @@ public class PespseTree {
         }
     }
 
+    /**
+     * Creates a fruit game object.
+     *
+     * @param addGameObj Callback to add a game object.
+     * @param x The x-coordinate of the fruit.
+     * @param y The y-coordinate of the fruit.
+     */
     private void createFruit(BiConsumer<GameObject, Integer> addGameObj, float x, float y) {
         OvalRenderable fruitRenderable =
                 new OvalRenderable(ColorSupplier.approximateColor(FRUIT_BASE_COLOR));
@@ -84,6 +137,11 @@ public class PespseTree {
         fruits.add(fruit);
     }
 
+    /**
+     * Creates a transition for the leaf's angle.
+     *
+     * @param leaf The leaf game object.
+     */
     private void createLeafAngleTransition(GameObject leaf) {
         new Transition<Float>(
                 leaf,
@@ -95,6 +153,11 @@ public class PespseTree {
                 Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);
     }
 
+    /**
+     * Creates a transition for the leaf's dimensions.
+     *
+     * @param leaf The leaf game object.
+     */
     private void createLeafDimensionTransition(GameObject leaf) {
         new Transition<Vector2>(
                 leaf,
@@ -106,6 +169,13 @@ public class PespseTree {
                 Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);
     }
 
+    /**
+     * Creates a leaf game object.
+     *
+     * @param addGameObj Callback to add a game object.
+     * @param x The x-coordinate of the leaf.
+     * @param y The y-coordinate of the leaf.
+     */
     private void createLeaf(BiConsumer<GameObject, Integer> addGameObj, float x, float y) {
         RectangleRenderable leafRenderable =
                 new RectangleRenderable(ColorSupplier.approximateColor(LEAF_BASE_COLOR));
@@ -119,6 +189,11 @@ public class PespseTree {
         leaves.add(leaf);
     }
 
+    /**
+     * Creates transitions for the leaf's properties.
+     *
+     * @param leaf The leaf game object.
+     */
     private void createLeafTransitions(GameObject leaf) {
         float waitTime = random.nextFloat();
         new ScheduledTask(
@@ -132,36 +207,76 @@ public class PespseTree {
         );
     }
 
+    /**
+     * Gets the top-left corner of the tree's top part.
+     *
+     * @return The top-left corner of the tree's top part.
+     */
     private Vector2 getTreeTopLeftCorner() {
         float x = this.location.x() - LEAF_GRID.x() / 2 + TREE_TRUNK_WIDTH / 2;
         float y = this.location.y() - LEAF_GRID.y() / 2;
         return new Vector2(x,y);
     }
 
+    /**
+     * Gets a random height for the tree trunk.
+     *
+     * @return A random height for the tree trunk.
+     */
     private float getRandomTreeHeight() {
         return random.nextFloat(TREE_MIN_HEIGHT, TREE_MAX_HEIGHT);
     }
 
+    /**
+     * Gets the trunk game object.
+     *
+     * @return The trunk game object.
+     */
     public GameObject getTrunk() {
         return trunk;
     }
 
+    /**
+     * Sets the trunk game object.
+     *
+     * @param trunk The trunk game object.
+     */
     public void setTrunk(GameObject trunk) {
         this.trunk = trunk;
     }
 
+    /**
+     * Gets the list of leaf game objects.
+     *
+     * @return The list of leaf game objects.
+     */
     public List<GameObject> getLeaves() {
         return leaves;
     }
 
+    /**
+     * Sets the list of leaf game objects.
+     *
+     * @param leaves The list of leaf game objects.
+     */
     public void setLeaves(List<GameObject> leaves) {
         this.leaves = leaves;
     }
 
+    /**
+     * Gets the list of fruit game objects.
+     *
+     * @return The list of fruit game objects.
+     */
     public List<GameObject> getFruits() {
         return fruits;
     }
 
+    /**
+     * Sets the list of fruit game objects.
+     *
+     * @param fruits The list of fruit game objects.
+     */
     public void setFruits(List<GameObject> fruits) {
         this.fruits = fruits;
     }
