@@ -3,15 +3,16 @@ ori.sass,zivbengigi
 
 Question 10.2.4:
 The manager creates: The sky, terrain, night, sun, tree's, avatar, cloud.
-Each tree is actually a trunk, a list of leaves, and a list of fruit.
+In packages trees:
+    Flora - responsible for creating all trees, at the beginning and in infinity mode.
+    Fruit - extends a gameObject. gives the avatar energy when eaten.
+    PepseTree - represent's a tree, consists of a trunk, leaves, and fruit.
 
 I used the observer design pattern for handling events that need to happen on a jump.
 In the exercise's instructions only one thing happens on that occasion- rain comes down from the cloud
 The JumpNotifier holds all jumpObservers, and notifies them on avatar jump
 Cloud implement's JumpObserver so on avatar jump it creates rain.
 
-Flora is responsible for creating all trees, at the beginning and in infinity mode.
-Same for Terrain and ground blocks.
 
 Block is the building block used to build the terrain and cloud.
 
